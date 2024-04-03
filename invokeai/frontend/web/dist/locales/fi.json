@@ -1,0 +1,51 @@
+{
+    "accessibility": {
+        "reset": "Resetoi",
+        "uploadImage": "Lataa kuva",
+        "invokeProgressBar": "Invoken edistymispalkki",
+        "nextImage": "Seuraava kuva",
+        "previousImage": "Edellinen kuva",
+        "showOptionsPanel": "Näytä asetukset"
+    },
+    "common": {
+        "languagePickerLabel": "Kielen valinta",
+        "hotkeysLabel": "Pikanäppäimet",
+        "reportBugLabel": "Raportoi Bugista",
+        "settingsLabel": "Asetukset",
+        "githubLabel": "Github",
+        "discordLabel": "Discord",
+        "upload": "Lataa",
+        "img2img": "Kuva kuvaksi",
+        "nodes": "Solmut",
+        "postprocessing": "Jälkikäsitellään",
+        "cancel": "Peruuta",
+        "accept": "Hyväksy",
+        "load": "Lataa",
+        "back": "Takaisin",
+        "statusDisconnected": "Yhteys katkaistu",
+        "loading": "Ladataan",
+        "txt2img": "Teksti kuvaksi",
+        "unifiedCanvas": "Yhdistetty kanvas"
+    },
+    "gallery": {
+        "galleryImageSize": "Kuvan koko",
+        "gallerySettings": "Gallerian asetukset",
+        "autoSwitchNewImages": "Vaihda uusiin kuviin automaattisesti",
+        "noImagesInGallery": "Ei kuvia galleriassa",
+        "loadMore": "Lataa lisää"
+    },
+    "hotkeys": {
+        "keyboardShortcuts": "näppäimistön pikavalinnat",
+        "appHotkeys": "Sovelluksen pikanäppäimet",
+        "generalHotkeys": "Yleiset pikanäppäimet",
+        "galleryHotkeys": "Gallerian pikanäppäimet",
+        "unifiedCanvasHotkeys": "Yhdistetyn kanvaan pikanäppäimet",
+        "cancel": {
+            "desc": "Peruuta kuvan luominen",
+            "title": "Peruuta"
+        },
+        "invoke": {
+            "desc": "Luo kuva"
+        }
+    }
+}

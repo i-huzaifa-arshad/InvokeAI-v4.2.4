@@ -1,0 +1,373 @@
+{
+    "modelManager": {
+        "height": "גובה",
+        "load": "טען",
+        "search": "חיפוש",
+        "allModels": "כל המודלים",
+        "modelUpdated": "מודל עודכן",
+        "manual": "ידני",
+        "name": "שם",
+        "description": "תיאור",
+        "config": "תצורה",
+        "repo_id": "מזהה מאגר",
+        "width": "רוחב",
+        "addModel": "הוסף מודל",
+        "active": "פעיל",
+        "selected": "נבחר",
+        "deleteModel": "מחיקת מודל",
+        "deleteConfig": "מחיקת תצורה",
+        "convertToDiffusersHelpText5": "אנא ודא/י שיש לך מספיק מקום בדיסק. גדלי מודלים בדרך כלל הינם בין 4GB-7GB.",
+        "convertToDiffusersHelpText1": "מודל זה יומר לפורמט 🧨 המפזרים.",
+        "convertToDiffusersHelpText2": "תהליך זה יחליף את הרשומה של מנהל המודלים שלך בגרסת המפזרים של אותו המודל.",
+        "convertToDiffusersHelpText6": "האם ברצונך להמיר מודל זה?",
+        "modelConverted": "מודל הומר",
+        "alpha": "אלפא",
+        "modelManager": "מנהל המודלים",
+        "model": "מודל",
+        "availableModels": "מודלים זמינים",
+        "delete": "מחיקה",
+        "deleteMsg1": "האם אתה בטוח שברצונך למחוק רשומת מודל זו מ- InvokeAI?",
+        "deleteMsg2": "פעולה זו לא תמחק את קובץ נקודת הביקורת מהדיסק שלך. ניתן לקרוא אותם מחדש במידת הצורך.",
+        "convertToDiffusers": "המרה למפזרים",
+        "convert": "המרה",
+        "convertToDiffusersHelpText3": "קובץ נקודת הביקורת שלך בדיסק לא יימחק או ישונה בכל מקרה. אתה יכול להוסיף את נקודת הביקורת שלך למנהל המודלים שוב אם תרצה בכך.",
+        "convertToDiffusersHelpText4": "זהו תהליך חד פעמי בלבד. התהליך עשוי לקחת בסביבות 30-60 שניות, תלוי במפרט המחשב שלך."
+    },
+    "common": {
+        "languagePickerLabel": "בחירת שפה",
+        "githubLabel": "גיטהאב",
+        "discordLabel": "דיסקורד",
+        "settingsLabel": "הגדרות",
+        "img2img": "תמונה לתמונה",
+        "unifiedCanvas": "קנבס מאוחד",
+        "nodes": "צמתים",
+        "statusDisconnected": "מנותק",
+        "hotkeysLabel": "מקשים חמים",
+        "reportBugLabel": "דווח באג",
+        "upload": "העלאה",
+        "load": "טעינה",
+        "back": "אחורה"
+    },
+    "hotkeys": {
+        "toggleGallery": {
+            "desc": "פתח וסגור את מגירת הגלריה",
+            "title": "הצג את הגלריה"
+        },
+        "keyboardShortcuts": "קיצורי מקלדת",
+        "appHotkeys": "קיצורי אפליקציה",
+        "generalHotkeys": "קיצורי דרך כלליים",
+        "galleryHotkeys": "קיצורי דרך של הגלריה",
+        "unifiedCanvasHotkeys": "קיצורי דרך לקנבס המאוחד",
+        "invoke": {
+            "title": "הפעל",
+            "desc": "צור תמונה"
+        },
+        "focusPrompt": {
+            "title": "התמקדות על הבקשה",
+            "desc": "התמקדות על איזור הקלדת הבקשה"
+        },
+        "toggleOptions": {
+            "desc": "פתח וסגור את פאנל ההגדרות",
+            "title": "הצג הגדרות"
+        },
+        "pinOptions": {
+            "title": "הצמד הגדרות",
+            "desc": "הצמד את פאנל ההגדרות"
+        },
+        "changeTabs": {
+            "title": "החלף לשוניות",
+            "desc": "החלף לאיזור עבודה אחר"
+        },
+        "consoleToggle": {
+            "desc": "פתח וסגור את הקונסול",
+            "title": "הצג קונסול"
+        },
+        "setPrompt": {
+            "title": "הגדרת בקשה",
+            "desc": "שימוש בבקשה של התמונה הנוכחית"
+        },
+        "restoreFaces": {
+            "desc": "שחזור התמונה הנוכחית",
+            "title": "שחזור פרצופים"
+        },
+        "upscale": {
+            "title": "הגדלת קנה מידה",
+            "desc": "הגדל את התמונה הנוכחית"
+        },
+        "showInfo": {
+            "title": "הצג מידע",
+            "desc": "הצגת פרטי מטא-נתונים של התמונה הנוכחית"
+        },
+        "sendToImageToImage": {
+            "title": "שלח לתמונה לתמונה",
+            "desc": "שלח תמונה נוכחית לתמונה לתמונה"
+        },
+        "deleteImage": {
+            "title": "מחק תמונה",
+            "desc": "מחק את התמונה הנוכחית"
+        },
+        "closePanels": {
+            "title": "סגור לוחות",
+            "desc": "סוגר לוחות פתוחים"
+        },
+        "previousImage": {
+            "title": "תמונה קודמת",
+            "desc": "הצג את התמונה הקודמת בגלריה"
+        },
+        "decreaseGalleryThumbSize": {
+            "title": "הקטנת גודל תמונת גלריה",
+            "desc": "מקטין את גודל התמונות הממוזערות של הגלריה"
+        },
+        "selectBrush": {
+            "desc": "בוחר את מברשת הקנבס",
+            "title": "בחר מברשת"
+        },
+        "selectEraser": {
+            "title": "בחר מחק",
+            "desc": "בוחר את מחק הקנבס"
+        },
+        "decreaseBrushSize": {
+            "title": "הקטנת גודל המברשת",
+            "desc": "מקטין את גודל מברשת הקנבס/מחק"
+        },
+        "increaseBrushSize": {
+            "desc": "מגדיל את גודל מברשת הקנבס/מחק",
+            "title": "הגדלת גודל המברשת"
+        },
+        "decreaseBrushOpacity": {
+            "title": "הפחת את אטימות המברשת",
+            "desc": "מקטין את האטימות של מברשת הקנבס"
+        },
+        "increaseBrushOpacity": {
+            "title": "הגדל את אטימות המברשת",
+            "desc": "מגביר את האטימות של מברשת הקנבס"
+        },
+        "moveTool": {
+            "title": "כלי הזזה",
+            "desc": "מאפשר ניווט על קנבס"
+        },
+        "fillBoundingBox": {
+            "desc": "ממלא את התיבה התוחמת בצבע מברשת",
+            "title": "מילוי תיבה תוחמת"
+        },
+        "eraseBoundingBox": {
+            "desc": "מוחק את אזור התיבה התוחמת",
+            "title": "מחק תיבה תוחמת"
+        },
+        "colorPicker": {
+            "title": "בחר בבורר צבעים",
+            "desc": "בוחר את בורר צבעי הקנבס"
+        },
+        "toggleSnap": {
+            "title": "הפעל הצמדה",
+            "desc": "מפעיל הצמדה לרשת"
+        },
+        "quickToggleMove": {
+            "title": "הפעלה מהירה להזזה",
+            "desc": "מפעיל זמנית את מצב ההזזה"
+        },
+        "toggleLayer": {
+            "title": "הפעל שכבה",
+            "desc": "הפעל בחירת שכבת בסיס/מסיכה"
+        },
+        "clearMask": {
+            "title": "נקה מסיכה",
+            "desc": "נקה את כל המסכה"
+        },
+        "hideMask": {
+            "desc": "הסתרה והצגה של מסיכה",
+            "title": "הסתר מסיכה"
+        },
+        "showHideBoundingBox": {
+            "title": "הצגה/הסתרה של תיבה תוחמת",
+            "desc": "הפעל תצוגה של התיבה התוחמת"
+        },
+        "mergeVisible": {
+            "title": "מיזוג תוכן גלוי",
+            "desc": "מיזוג כל השכבות הגלויות של הקנבס"
+        },
+        "saveToGallery": {
+            "title": "שמור לגלריה",
+            "desc": "שמור את הקנבס הנוכחי בגלריה"
+        },
+        "copyToClipboard": {
+            "title": "העתק ללוח ההדבקה",
+            "desc": "העתק את הקנבס הנוכחי ללוח ההדבקה"
+        },
+        "downloadImage": {
+            "title": "הורד תמונה",
+            "desc": "הורד את הקנבס הנוכחי"
+        },
+        "undoStroke": {
+            "title": "בטל משיכה",
+            "desc": "בטל משיכת מברשת"
+        },
+        "redoStroke": {
+            "title": "בצע שוב משיכה",
+            "desc": "ביצוע מחדש של משיכת מברשת"
+        },
+        "resetView": {
+            "title": "איפוס תצוגה",
+            "desc": "אפס תצוגת קנבס"
+        },
+        "previousStagingImage": {
+            "desc": "תמונת אזור ההערכות הקודמת",
+            "title": "תמונת הערכות קודמת"
+        },
+        "nextStagingImage": {
+            "title": "תמנות הערכות הבאה",
+            "desc": "תמונת אזור ההערכות הבאה"
+        },
+        "acceptStagingImage": {
+            "desc": "אשר את תמונת איזור ההערכות הנוכחית",
+            "title": "אשר תמונת הערכות"
+        },
+        "cancel": {
+            "desc": "ביטול יצירת תמונה",
+            "title": "ביטול"
+        },
+        "maximizeWorkSpace": {
+            "title": "מקסם את איזור העבודה",
+            "desc": "סגור פאנלים ומקסם את איזור העבודה"
+        },
+        "setSeed": {
+            "title": "הגדר זרע",
+            "desc": "השתמש בזרע התמונה הנוכחית"
+        },
+        "setParameters": {
+            "title": "הגדרת פרמטרים",
+            "desc": "שימוש בכל הפרמטרים של התמונה הנוכחית"
+        },
+        "increaseGalleryThumbSize": {
+            "title": "הגדל את גודל תמונת הגלריה",
+            "desc": "מגדיל את התמונות הממוזערות של הגלריה"
+        },
+        "nextImage": {
+            "title": "תמונה הבאה",
+            "desc": "הצג את התמונה הבאה בגלריה"
+        }
+    },
+    "gallery": {
+        "galleryImageSize": "גודל תמונה",
+        "gallerySettings": "הגדרות גלריה",
+        "autoSwitchNewImages": "החלף אוטומטית לתמונות חדשות",
+        "loadMore": "טען עוד",
+        "noImagesInGallery": "אין תמונות בגלריה"
+    },
+    "parameters": {
+        "images": "תמונות",
+        "steps": "צעדים",
+        "cfgScale": "סולם CFG",
+        "width": "רוחב",
+        "height": "גובה",
+        "seed": "זרע",
+        "type": "סוג",
+        "strength": "חוזק",
+        "upscale": "הגדלת קנה מידה",
+        "upscaleImage": "הגדלת קנה מידת התמונה",
+        "denoisingStrength": "חוזק מנטרל הרעש",
+        "scaleBeforeProcessing": "שנה קנה מידה לפני עיבוד",
+        "scaledWidth": "קנה מידה לאחר שינוי W",
+        "scaledHeight": "קנה מידה לאחר שינוי H",
+        "infillMethod": "שיטת מילוי",
+        "tileSize": "גודל אריח",
+        "symmetry": "סימטריה",
+        "copyImage": "העתקת תמונה",
+        "downloadImage": "הורדת תמונה",
+        "sendToImg2Img": "שליחה לתמונה לתמונה",
+        "sendToUnifiedCanvas": "שליחה אל קנבס מאוחד",
+        "usePrompt": "שימוש בבקשה",
+        "useSeed": "שימוש בזרע",
+        "useAll": "שימוש בהכל",
+        "info": "פרטים",
+        "showOptionsPanel": "הצג חלונית אפשרויות",
+        "shuffle": "ערבוב",
+        "noiseThreshold": "סף רעש",
+        "perlinNoise": "רעש פרלין",
+        "imageFit": "התאמת תמונה ראשונית לגודל הפלט",
+        "general": "כללי",
+        "upscaling": "מגדיל את קנה מידה",
+        "scale": "סולם"
+    },
+    "settings": {
+        "models": "מודלים",
+        "displayInProgress": "הצגת תמונות בתהליך",
+        "confirmOnDelete": "אישור בעת המחיקה",
+        "resetWebUI": "איפוס ממשק משתמש",
+        "resetWebUIDesc1": "איפוס ממשק המשתמש האינטרנטי מאפס רק את המטמון המקומי של הדפדפן של התמונות וההגדרות שנשמרו. זה לא מוחק תמונות מהדיסק.",
+        "resetComplete": "ממשק המשתמש אופס. יש לבצע רענון דף בכדי לטעון אותו מחדש.",
+        "enableImageDebugging": "הפעלת איתור באגים בתמונה",
+        "resetWebUIDesc2": "אם תמונות לא מופיעות בגלריה או שמשהו אחר לא עובד, נא לנסות איפוס /או אתחול לפני שליחת תקלה ב-GitHub."
+    },
+    "toast": {
+        "uploadFailed": "העלאה נכשלה",
+        "imageCopied": "התמונה הועתקה",
+        "imageNotLoadedDesc": "לא נמצאה תמונה לשליחה למודול תמונה לתמונה",
+        "canvasMerged": "קנבס מוזג",
+        "sentToImageToImage": "נשלח לתמונה לתמונה",
+        "sentToUnifiedCanvas": "נשלח אל קנבס מאוחד",
+        "parametersSet": "הגדרת פרמטרים",
+        "parametersNotSet": "פרמטרים לא הוגדרו",
+        "metadataLoadFailed": "טעינת מטא-נתונים נכשלה"
+    },
+    "tooltip": {
+        "feature": {
+            "gallery": "הגלריה מציגה יצירות מתיקיית הפלטים בעת יצירתם. ההגדרות מאוחסנות בתוך קבצים ונגישות באמצעות תפריט הקשר.",
+            "upscale": "השתמש ב-ESRGAN כדי להגדיל את התמונה מיד לאחר היצירה.",
+            "prompt": "זהו שדה הבקשה. הבקשה כוללת אובייקטי יצירה ומונחים סגנוניים. באפשרותך להוסיף משקל (חשיבות אסימון) גם בשורת הפקודה, אך פקודות ופרמטרים של CLI לא יפעלו.",
+            "other": "אפשרויות אלה יאפשרו מצבי עיבוד חלופיים עבור ההרצה. 'ריצוף חלק' ייצור תבניות חוזרות בפלט. 'רזולוציה גבוהה' נוצר בשני שלבים עם img2img: השתמש בהגדרה זו כאשר אתה רוצה תמונה גדולה וקוהרנטית יותר ללא חפצים. פעולה זאת תקח יותר זמן מפעולת טקסט לתמונה רגילה.",
+            "seed": "ערך הזרע משפיע על הרעש הראשוני שממנו נוצרת התמונה. אתה יכול להשתמש בזרעים שכבר קיימים מתמונות קודמות. 'סף רעש' משמש להפחתת חפצים בערכי CFG גבוהים (נסה את טווח 0-10), ופרלין כדי להוסיף רעשי פרלין במהלך היצירה: שניהם משמשים להוספת וריאציה לתפוקות שלך.",
+            "boundingBox": "התיבה התוחמת זהה להגדרות 'רוחב' ו'גובה' עבור 'טקסט לתמונה' או 'תמונה לתמונה'. רק האזור בתיבה יעובד."
+        }
+    },
+    "unifiedCanvas": {
+        "layer": "שכבה",
+        "base": "בסיס",
+        "maskingOptions": "אפשרויות מסכות",
+        "enableMask": "הפעלת מסיכה",
+        "colorPicker": "בוחר הצבעים",
+        "preserveMaskedArea": "שימור איזור ממוסך",
+        "clearMask": "ניקוי מסיכה",
+        "brush": "מברשת",
+        "eraser": "מחק",
+        "fillBoundingBox": "מילוי תיבה תוחמת",
+        "eraseBoundingBox": "מחק תיבה תוחמת",
+        "copyToClipboard": "העתק ללוח ההדבקה",
+        "downloadAsImage": "הורדה כתמונה",
+        "undo": "ביטול",
+        "redo": "ביצוע מחדש",
+        "clearCanvas": "ניקוי קנבס",
+        "showGrid": "הצגת רשת",
+        "snapToGrid": "הצמדה לרשת",
+        "darkenOutsideSelection": "הכהיית בחירה חיצונית",
+        "saveBoxRegionOnly": "שמירת איזור תיבה בלבד",
+        "limitStrokesToBox": "הגבלת משיכות לקופסא",
+        "showCanvasDebugInfo": "הצגת מידע איתור באגים בקנבס",
+        "clearCanvasHistory": "ניקוי הסטוריית קנבס",
+        "clearHistory": "ניקוי היסטוריה",
+        "clearCanvasHistoryConfirm": "האם את/ה בטוח/ה שברצונך לנקות את היסטוריית הקנבס?",
+        "activeLayer": "שכבה פעילה",
+        "canvasScale": "קנה מידה של קנבס",
+        "canvasDimensions": "מידות קנבס",
+        "previous": "הקודם",
+        "next": "הבא",
+        "accept": "אישור",
+        "discardAll": "בטל הכל",
+        "boundingBox": "תיבה תוחמת",
+        "scaledBoundingBox": "תיבה תוחמת לאחר שינוי קנה מידה",
+        "brushOptions": "אפשרויות מברשת",
+        "brushSize": "גודל",
+        "mergeVisible": "מיזוג תוכן גלוי",
+        "move": "הזזה",
+        "resetView": "איפוס תצוגה",
+        "saveToGallery": "שמור לגלריה",
+        "canvasSettings": "הגדרות קנבס",
+        "showIntermediates": "הצגת מתווכים",
+        "autoSaveToGallery": "שמירה אוטומטית בגלריה",
+        "clearCanvasHistoryMessage": "ניקוי היסטוריית הקנבס משאיר את הקנבס הנוכחי ללא שינוי, אך מנקה באופן בלתי הפיך את היסטוריית הביטול והביצוע מחדש.",
+        "boundingBoxPosition": "מיקום תיבה תוחמת",
+        "canvasPosition": "מיקום קנבס",
+        "cursorPosition": "מיקום הסמן",
+        "mask": "מסכה"
+    }
+}

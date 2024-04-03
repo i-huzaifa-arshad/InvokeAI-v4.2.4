@@ -1,0 +1,459 @@
+{
+    "common": {
+        "hotkeysLabel": "Atajos de teclado",
+        "languagePickerLabel": "Selector de idioma",
+        "reportBugLabel": "Reportar errores",
+        "settingsLabel": "Ajustes",
+        "img2img": "Imagen a Imagen",
+        "unifiedCanvas": "Lienzo Unificado",
+        "nodes": "Editor del flujo de trabajo",
+        "upload": "Subir imagen",
+        "load": "Cargar",
+        "statusDisconnected": "Desconectado",
+        "githubLabel": "Github",
+        "discordLabel": "Discord",
+        "back": "Atrás",
+        "loading": "Cargando",
+        "postprocessing": "Tratamiento posterior",
+        "txt2img": "De texto a imagen",
+        "accept": "Aceptar",
+        "cancel": "Cancelar",
+        "linear": "Lineal",
+        "random": "Aleatorio",
+        "openInNewTab": "Abrir en una nueva pestaña",
+        "dontAskMeAgain": "No me preguntes de nuevo",
+        "areYouSure": "¿Estas seguro?",
+        "batch": "Administrador de lotes",
+        "modelManager": "Administrador de modelos",
+        "communityLabel": "Comunidad"
+    },
+    "gallery": {
+        "galleryImageSize": "Tamaño de la imagen",
+        "gallerySettings": "Ajustes de la galería",
+        "autoSwitchNewImages": "Auto seleccionar Imágenes nuevas",
+        "loadMore": "Cargar más",
+        "noImagesInGallery": "No hay imágenes para mostrar",
+        "deleteImage": "Eliminar Imagen",
+        "deleteImageBin": "Las imágenes eliminadas se enviarán a la papelera de tu sistema operativo.",
+        "deleteImagePermanent": "Las imágenes eliminadas no se pueden restaurar.",
+        "assets": "Activos",
+        "autoAssignBoardOnClick": "Asignación automática de tableros al hacer clic"
+    },
+    "hotkeys": {
+        "keyboardShortcuts": "Atajos de teclado",
+        "appHotkeys": "Atajos de applicación",
+        "generalHotkeys": "Atajos generales",
+        "galleryHotkeys": "Atajos de galería",
+        "unifiedCanvasHotkeys": "Atajos de lienzo unificado",
+        "invoke": {
+            "title": "Invocar",
+            "desc": "Generar una imagen"
+        },
+        "cancel": {
+            "title": "Cancelar",
+            "desc": "Cancelar el proceso de generación de imagen"
+        },
+        "focusPrompt": {
+            "title": "Mover foco a Entrada de texto",
+            "desc": "Mover foco hacia el campo de texto de la Entrada"
+        },
+        "toggleOptions": {
+            "title": "Alternar opciones",
+            "desc": "Mostar y ocultar el panel de opciones"
+        },
+        "pinOptions": {
+            "title": "Fijar opciones",
+            "desc": "Fijar el panel de opciones"
+        },
+        "toggleGallery": {
+            "title": "Alternar galería",
+            "desc": "Mostar y ocultar la galería de imágenes"
+        },
+        "maximizeWorkSpace": {
+            "title": "Maximizar espacio de trabajo",
+            "desc": "Cerrar otros páneles y maximizar el espacio de trabajo"
+        },
+        "changeTabs": {
+            "title": "Cambiar",
+            "desc": "Cambiar entre áreas de trabajo"
+        },
+        "consoleToggle": {
+            "title": "Alternar consola",
+            "desc": "Mostar y ocultar la consola"
+        },
+        "setPrompt": {
+            "title": "Establecer Entrada",
+            "desc": "Usar el texto de entrada de la imagen actual"
+        },
+        "setSeed": {
+            "title": "Establecer semilla",
+            "desc": "Usar la semilla de la imagen actual"
+        },
+        "setParameters": {
+            "title": "Establecer parámetros",
+            "desc": "Usar todos los parámetros de la imagen actual"
+        },
+        "restoreFaces": {
+            "title": "Restaurar rostros",
+            "desc": "Restaurar rostros en la imagen actual"
+        },
+        "upscale": {
+            "title": "Aumentar resolución",
+            "desc": "Aumentar la resolución de la imagen actual"
+        },
+        "showInfo": {
+            "title": "Mostrar información",
+            "desc": "Mostar metadatos de la imagen actual"
+        },
+        "sendToImageToImage": {
+            "title": "Enviar hacia Imagen a Imagen",
+            "desc": "Enviar imagen actual hacia Imagen a Imagen"
+        },
+        "deleteImage": {
+            "title": "Eliminar imagen",
+            "desc": "Eliminar imagen actual"
+        },
+        "closePanels": {
+            "title": "Cerrar páneles",
+            "desc": "Cerrar los páneles abiertos"
+        },
+        "previousImage": {
+            "title": "Imagen anterior",
+            "desc": "Muetra la imagen anterior en la galería"
+        },
+        "nextImage": {
+            "title": "Imagen siguiente",
+            "desc": "Muetra la imagen siguiente en la galería"
+        },
+        "increaseGalleryThumbSize": {
+            "title": "Aumentar imagen en galería",
+            "desc": "Aumenta el tamaño de las miniaturas de la galería"
+        },
+        "decreaseGalleryThumbSize": {
+            "title": "Reducir imagen en galería",
+            "desc": "Reduce el tamaño de las miniaturas de la galería"
+        },
+        "selectBrush": {
+            "title": "Seleccionar pincel",
+            "desc": "Selecciona el pincel en el lienzo"
+        },
+        "selectEraser": {
+            "title": "Seleccionar borrador",
+            "desc": "Selecciona el borrador en el lienzo"
+        },
+        "decreaseBrushSize": {
+            "title": "Disminuir tamaño de herramienta",
+            "desc": "Disminuye el tamaño del pincel/borrador en el lienzo"
+        },
+        "increaseBrushSize": {
+            "title": "Aumentar tamaño del pincel",
+            "desc": "Aumenta el tamaño del pincel en el lienzo"
+        },
+        "decreaseBrushOpacity": {
+            "title": "Disminuir opacidad del pincel",
+            "desc": "Disminuye la opacidad del pincel en el lienzo"
+        },
+        "increaseBrushOpacity": {
+            "title": "Aumentar opacidad del pincel",
+            "desc": "Aumenta la opacidad del pincel en el lienzo"
+        },
+        "moveTool": {
+            "title": "Herramienta de movimiento",
+            "desc": "Permite navegar por el lienzo"
+        },
+        "fillBoundingBox": {
+            "title": "Rellenar Caja contenedora",
+            "desc": "Rellena la caja contenedora con el color seleccionado"
+        },
+        "eraseBoundingBox": {
+            "title": "Borrar Caja contenedora",
+            "desc": "Borra el contenido dentro de la caja contenedora"
+        },
+        "colorPicker": {
+            "title": "Selector de color",
+            "desc": "Selecciona un color del lienzo"
+        },
+        "toggleSnap": {
+            "title": "Alternar ajuste de cuadrícula",
+            "desc": "Activa o desactiva el ajuste automático a la cuadrícula"
+        },
+        "quickToggleMove": {
+            "title": "Alternar movimiento rápido",
+            "desc": "Activa momentáneamente la herramienta de movimiento"
+        },
+        "toggleLayer": {
+            "title": "Alternar capa",
+            "desc": "Alterna entre las capas de máscara y base"
+        },
+        "clearMask": {
+            "title": "Limpiar máscara",
+            "desc": "Limpia toda la máscara actual"
+        },
+        "hideMask": {
+            "title": "Ocultar máscara",
+            "desc": "Oculta o muetre la máscara actual"
+        },
+        "showHideBoundingBox": {
+            "title": "Alternar caja contenedora",
+            "desc": "Muestra u oculta la caja contenedora"
+        },
+        "mergeVisible": {
+            "title": "Consolida capas visibles",
+            "desc": "Consolida todas las capas visibles en una sola"
+        },
+        "saveToGallery": {
+            "title": "Guardar en galería",
+            "desc": "Guardar la imagen actual del lienzo en la galería"
+        },
+        "copyToClipboard": {
+            "title": "Copiar al portapapeles",
+            "desc": "Copiar el lienzo actual al portapapeles"
+        },
+        "downloadImage": {
+            "title": "Descargar imagen",
+            "desc": "Descargar la imagen actual del lienzo"
+        },
+        "undoStroke": {
+            "title": "Deshar trazo",
+            "desc": "Desahacer el último trazo del pincel"
+        },
+        "redoStroke": {
+            "title": "Rehacer trazo",
+            "desc": "Rehacer el último trazo del pincel"
+        },
+        "resetView": {
+            "title": "Restablecer vista",
+            "desc": "Restablecer la vista del lienzo"
+        },
+        "previousStagingImage": {
+            "title": "Imagen anterior",
+            "desc": "Imagen anterior en el área de preparación"
+        },
+        "nextStagingImage": {
+            "title": "Imagen siguiente",
+            "desc": "Siguiente imagen en el área de preparación"
+        },
+        "acceptStagingImage": {
+            "title": "Aceptar imagen",
+            "desc": "Aceptar la imagen actual en el área de preparación"
+        },
+        "addNodes": {
+            "title": "Añadir Nodos",
+            "desc": "Abre el menú para añadir nodos"
+        },
+        "nodesHotkeys": "Teclas de acceso rápido a los nodos"
+    },
+    "modelManager": {
+        "modelManager": "Gestor de Modelos",
+        "model": "Modelo",
+        "modelUpdated": "Modelo actualizado",
+        "manual": "Manual",
+        "name": "Nombre",
+        "description": "Descripción",
+        "config": "Configurar",
+        "width": "Ancho",
+        "height": "Alto",
+        "addModel": "Añadir Modelo",
+        "availableModels": "Modelos disponibles",
+        "search": "Búsqueda",
+        "load": "Cargar",
+        "active": "activo",
+        "selected": "Seleccionado",
+        "delete": "Eliminar",
+        "deleteModel": "Eliminar Modelo",
+        "deleteConfig": "Eliminar Configuración",
+        "deleteMsg1": "¿Estás seguro de que deseas eliminar este modelo de InvokeAI?",
+        "deleteMsg2": "Esto eliminará el modelo del disco si está en la carpeta raíz de InvokeAI. Si está utilizando una ubicación personalizada, el modelo NO se eliminará del disco.",
+        "convertToDiffusersHelpText4": "Este proceso se realiza una sola vez. Puede tardar entre 30 y 60 segundos dependiendo de las especificaciones de tu ordenador.",
+        "convert": "Convertir",
+        "convertToDiffusers": "Convertir en difusores",
+        "convertToDiffusersHelpText1": "Este modelo se convertirá al formato 🧨 Difusores.",
+        "convertToDiffusersHelpText2": "Este proceso sustituirá su entrada del Gestor de Modelos por la versión de Difusores del mismo modelo.",
+        "convertToDiffusersHelpText3": "Tu archivo del punto de control en el disco se eliminará si está en la carpeta raíz de InvokeAI. Si está en una ubicación personalizada, NO se eliminará.",
+        "convertToDiffusersHelpText5": "Por favor, asegúrate de tener suficiente espacio en el disco. Los modelos generalmente varían entre 2 GB y 7 GB de tamaño.",
+        "convertToDiffusersHelpText6": "¿Desea transformar este modelo?",
+        "modelConverted": "Modelo adaptado",
+        "alpha": "Alfa",
+        "allModels": "Todos los modelos",
+        "repo_id": "Identificador del repositorio",
+        "v2_base": "v2 (512px)",
+        "none": "ninguno",
+        "v2_768": "v2 (768px)",
+        "vae": "VAE",
+        "variant": "Variante",
+        "baseModel": "Modelo básico",
+        "modelConversionFailed": "Conversión al modelo fallida",
+        "selectModel": "Seleccionar un modelo",
+        "modelUpdateFailed": "Error al actualizar el modelo",
+        "convertingModelBegin": "Convirtiendo el modelo. Por favor, espere.",
+        "modelDeleted": "Modelo eliminado",
+        "modelDeleteFailed": "Error al borrar el modelo",
+        "settings": "Ajustes",
+        "syncModels": "Sincronizar las plantillas",
+        "modelsSynced": "Plantillas sincronizadas",
+        "modelSyncFailed": "La sincronización de la plantilla falló"
+    },
+    "parameters": {
+        "images": "Imágenes",
+        "steps": "Pasos",
+        "cfgScale": "Escala CFG",
+        "width": "Ancho",
+        "height": "Alto",
+        "seed": "Semilla",
+        "shuffle": "Semilla aleatoria",
+        "noiseThreshold": "Umbral de Ruido",
+        "perlinNoise": "Ruido Perlin",
+        "type": "Tipo",
+        "strength": "Fuerza",
+        "upscaling": "Aumento de resolución",
+        "upscale": "Aumentar resolución",
+        "upscaleImage": "Aumentar la resolución de la imagen",
+        "scale": "Escala",
+        "imageFit": "Ajuste tamaño de imagen inicial al tamaño objetivo",
+        "scaleBeforeProcessing": "Redimensionar antes de procesar",
+        "scaledWidth": "Ancho escalado",
+        "scaledHeight": "Alto escalado",
+        "infillMethod": "Método de relleno",
+        "tileSize": "Tamaño del mosaico",
+        "sendToImg2Img": "Enviar a Imagen a Imagen",
+        "sendToUnifiedCanvas": "Enviar a Lienzo Unificado",
+        "downloadImage": "Descargar imagen",
+        "usePrompt": "Usar Entrada",
+        "useSeed": "Usar Semilla",
+        "useAll": "Usar Todo",
+        "info": "Información",
+        "showOptionsPanel": "Mostrar panel de opciones",
+        "symmetry": "Simetría",
+        "copyImage": "Copiar la imagen",
+        "general": "General",
+        "denoisingStrength": "Intensidad de la eliminación del ruido",
+        "seamlessXAxis": "Eje x",
+        "seamlessYAxis": "Eje y",
+        "scheduler": "Programador",
+        "positivePromptPlaceholder": "Prompt Positivo",
+        "negativePromptPlaceholder": "Prompt Negativo",
+        "controlNetControlMode": "Modo de control",
+        "clipSkip": "Omitir el CLIP",
+        "maskBlur": "Difuminar",
+        "patchmatchDownScaleSize": "Reducir a escala",
+        "coherenceMode": "Modo"
+    },
+    "settings": {
+        "models": "Modelos",
+        "displayInProgress": "Mostrar las imágenes del progreso",
+        "confirmOnDelete": "Confirmar antes de eliminar",
+        "enableImageDebugging": "Habilitar depuración de imágenes",
+        "resetWebUI": "Restablecer interfaz web",
+        "resetWebUIDesc1": "Al restablecer la interfaz web, solo se restablece la caché local del navegador de sus imágenes y la configuración guardada. No se elimina ninguna imagen de su disco duro.",
+        "resetWebUIDesc2": "Si las imágenes no se muestran en la galería o algo más no funciona, intente restablecer antes de reportar un incidente en GitHub.",
+        "resetComplete": "Se ha restablecido la interfaz web.",
+        "general": "General",
+        "shouldLogToConsole": "Registro de la consola",
+        "developer": "Desarrollador",
+        "antialiasProgressImages": "Imágenes del progreso de Antialias",
+        "showProgressInViewer": "Mostrar las imágenes del progreso en el visor",
+        "ui": "Interfaz del usuario",
+        "generation": "Generación",
+        "beta": "Beta"
+    },
+    "toast": {
+        "uploadFailed": "Error al subir archivo",
+        "imageCopied": "Imágen copiada",
+        "imageNotLoadedDesc": "No se pudo encontrar la imagen",
+        "canvasMerged": "Lienzo consolidado",
+        "sentToImageToImage": "Enviar hacia Imagen a Imagen",
+        "sentToUnifiedCanvas": "Enviar hacia Lienzo Consolidado",
+        "parametersSet": "Parámetros establecidos",
+        "parametersNotSet": "Parámetros no establecidos",
+        "metadataLoadFailed": "Error al cargar metadatos",
+        "serverError": "Error en el servidor",
+        "canceled": "Procesando la cancelación",
+        "connected": "Conectado al servidor",
+        "uploadFailedInvalidUploadDesc": "Debe ser una sola imagen PNG o JPEG",
+        "parameterSet": "Conjunto de parámetros",
+        "parameterNotSet": "Parámetro no configurado",
+        "problemCopyingImage": "No se puede copiar la imagen"
+    },
+    "tooltip": {
+        "feature": {
+            "prompt": "Este campo tomará todo el texto de entrada, incluidos tanto los términos de contenido como los estilísticos. Si bien se pueden incluir pesos en la solicitud, los comandos/parámetros estándar de línea de comandos no funcionarán.",
+            "gallery": "Conforme se generan nuevas invocaciones, los archivos del directorio de salida se mostrarán aquí. Las generaciones tienen opciones adicionales para configurar nuevas generaciones.",
+            "other": "Estas opciones habilitarán modos de procesamiento alternativos para Invoke. 'Seamless mosaico' creará patrones repetitivos en la salida. 'Alta resolución' es la generación en dos pasos con img2img: use esta configuración cuando desee una imagen más grande y más coherente sin artefactos. tomar más tiempo de lo habitual txt2img.",
+            "seed": "Los valores de semilla proporcionan un conjunto inicial de ruido que guían el proceso de eliminación de ruido y se pueden aleatorizar o rellenar con una semilla de una invocación anterior. La función Umbral se puede usar para mitigar resultados indeseables a valores CFG más altos (intente entre 0-10), y Perlin se puede usar para agregar ruido Perlin al proceso de eliminación de ruido. Ambos sirven para agregar variación a sus salidas.",
+            "upscale": "Usando ESRGAN, puede aumentar la resolución de salida sin requerir un ancho/alto más alto en la generación inicial.",
+            "boundingBox": "La caja delimitadora es análoga a las configuraciones de Ancho y Alto para Texto a Imagen o Imagen a Imagen. Solo se procesará el área en la caja."
+        }
+    },
+    "unifiedCanvas": {
+        "layer": "Capa",
+        "base": "Base",
+        "mask": "Máscara",
+        "maskingOptions": "Opciones de máscara",
+        "enableMask": "Habilitar Máscara",
+        "preserveMaskedArea": "Preservar área enmascarada",
+        "clearMask": "Limpiar máscara",
+        "brush": "Pincel",
+        "eraser": "Borrador",
+        "fillBoundingBox": "Rellenar Caja Contenedora",
+        "eraseBoundingBox": "Eliminar Caja Contenedora",
+        "colorPicker": "Selector de color",
+        "brushOptions": "Opciones de pincel",
+        "brushSize": "Tamaño",
+        "move": "Mover",
+        "resetView": "Restablecer vista",
+        "mergeVisible": "Consolidar vista",
+        "saveToGallery": "Guardar en galería",
+        "copyToClipboard": "Copiar al portapapeles",
+        "downloadAsImage": "Descargar como imagen",
+        "undo": "Deshacer",
+        "redo": "Rehacer",
+        "clearCanvas": "Limpiar lienzo",
+        "canvasSettings": "Ajustes de lienzo",
+        "showIntermediates": "Mostrar intermedios",
+        "showGrid": "Mostrar cuadrícula",
+        "snapToGrid": "Ajustar a cuadrícula",
+        "darkenOutsideSelection": "Oscurecer fuera de la selección",
+        "autoSaveToGallery": "Guardar automáticamente en galería",
+        "saveBoxRegionOnly": "Guardar solo región dentro de la caja",
+        "limitStrokesToBox": "Limitar trazos a la caja",
+        "showCanvasDebugInfo": "Mostrar la información adicional del lienzo",
+        "clearCanvasHistory": "Limpiar historial de lienzo",
+        "clearHistory": "Limpiar historial",
+        "clearCanvasHistoryMessage": "Limpiar el historial de lienzo también restablece completamente el lienzo unificado. Esto incluye todo el historial de deshacer/rehacer, las imágenes en el área de preparación y la capa base del lienzo.",
+        "clearCanvasHistoryConfirm": "¿Está seguro de que desea limpiar el historial del lienzo?",
+        "activeLayer": "Capa activa",
+        "canvasScale": "Escala de lienzo",
+        "boundingBox": "Caja contenedora",
+        "scaledBoundingBox": "Caja contenedora escalada",
+        "boundingBoxPosition": "Posición de caja contenedora",
+        "canvasDimensions": "Dimensiones de lienzo",
+        "canvasPosition": "Posición de lienzo",
+        "cursorPosition": "Posición del cursor",
+        "previous": "Anterior",
+        "next": "Siguiente",
+        "accept": "Aceptar",
+        "discardAll": "Descartar todo",
+        "antialiasing": "Suavizado"
+    },
+    "accessibility": {
+        "invokeProgressBar": "Activar la barra de progreso",
+        "reset": "Reiniciar",
+        "uploadImage": "Cargar imagen",
+        "previousImage": "Imagen anterior",
+        "nextImage": "Siguiente imagen",
+        "showOptionsPanel": "Mostrar el panel lateral",
+        "menu": "Menú"
+    },
+    "nodes": {
+        "zoomInNodes": "Acercar",
+        "hideMinimapnodes": "Ocultar el minimapa",
+        "fitViewportNodes": "Ajustar la vista",
+        "zoomOutNodes": "Alejar",
+        "hideLegendNodes": "Ocultar la leyenda del tipo de campo",
+        "showLegendNodes": "Mostrar la leyenda del tipo de campo",
+        "showMinimapnodes": "Mostrar el minimapa",
+        "reloadNodeTemplates": "Recargar las plantillas de nodos",
+        "loadWorkflow": "Cargar el flujo de trabajo",
+        "downloadWorkflow": "Descargar el flujo de trabajo en un archivo JSON"
+    }
+}
