@@ -25,14 +25,13 @@ from pydantic.networks import AnyHttpUrl
 from requests.sessions import Session
 
 from invokeai.backend.model_manager.config import ModelRepoVariant
-
-from ..metadata_base import (
+from invokeai.backend.model_manager.metadata.fetch.fetch_base import ModelMetadataFetchBase
+from invokeai.backend.model_manager.metadata.metadata_base import (
     AnyModelRepoMetadata,
     HuggingFaceMetadata,
     RemoteModelFile,
     UnknownMetadataException,
 )
-from .fetch_base import ModelMetadataFetchBase
 
 HF_MODEL_RE = r"https?://huggingface.co/([\w\-.]+/[\w\-.]+)"
 
@@ -83,7 +82,7 @@ class HuggingFaceMetadataFetch(ModelMetadataFetchBase):
             assert s.size is not None
             files.append(
                 RemoteModelFile(
-                    url=hf_hub_url(id, s.rfilename, revision=variant),
+                    url=hf_hub_url(id, s.rfilename, revision=variant or "main"),
                     path=Path(name, s.rfilename),
                     size=s.size,
                     sha256=s.lfs.get("sha256") if s.lfs else None,

@@ -6,7 +6,7 @@
         "settingsLabel": "Ajustes",
         "img2img": "Imagen a Imagen",
         "unifiedCanvas": "Lienzo Unificado",
-        "nodes": "Editor del flujo de trabajo",
+        "nodes": "Flujos de trabajo",
         "upload": "Subir imagen",
         "load": "Cargar",
         "statusDisconnected": "Desconectado",
@@ -14,7 +14,7 @@
         "discordLabel": "Discord",
         "back": "Atrás",
         "loading": "Cargando",
-        "postprocessing": "Tratamiento posterior",
+        "postprocessing": "Postprocesado",
         "txt2img": "De texto a imagen",
         "accept": "Aceptar",
         "cancel": "Cancelar",
@@ -25,7 +25,59 @@
         "areYouSure": "¿Estas seguro?",
         "batch": "Administrador de lotes",
         "modelManager": "Administrador de modelos",
-        "communityLabel": "Comunidad"
+        "communityLabel": "Comunidad",
+        "direction": "Dirección",
+        "ai": "Ia",
+        "add": "Añadir",
+        "auto": "Automático",
+        "copyError": "Error $t(gallery.copy)",
+        "details": "Detalles",
+        "or": "o",
+        "checkpoint": "Punto de control",
+        "controlNet": "ControlNet",
+        "aboutHeading": "Sea dueño de su poder creativo",
+        "advanced": "Avanzado",
+        "data": "Fecha",
+        "delete": "Borrar",
+        "copy": "Copiar",
+        "beta": "Beta",
+        "on": "En",
+        "aboutDesc": "¿Utilizas Invoke para trabajar? Mira aquí:",
+        "installed": "Instalado",
+        "green": "Verde",
+        "editor": "Editor",
+        "orderBy": "Ordenar por",
+        "file": "Archivo",
+        "goTo": "Ir a",
+        "imageFailedToLoad": "No se puede cargar la imagen",
+        "saveAs": "Guardar Como",
+        "somethingWentWrong": "Algo salió mal",
+        "nextPage": "Página Siguiente",
+        "selected": "Seleccionado",
+        "tab": "Tabulador",
+        "positivePrompt": "Prompt Positivo",
+        "negativePrompt": "Prompt Negativo",
+        "error": "Error",
+        "format": "formato",
+        "unknown": "Desconocido",
+        "input": "Entrada",
+        "nodeEditor": "Editor de nodos",
+        "template": "Plantilla",
+        "prevPage": "Página Anterior",
+        "red": "Rojo",
+        "alpha": "Transparencia",
+        "outputs": "Salidas",
+        "editing": "Editando",
+        "learnMore": "Aprende más",
+        "enabled": "Activado",
+        "disabled": "Desactivado",
+        "folder": "Carpeta",
+        "updated": "Actualizado",
+        "created": "Creado",
+        "save": "Guardar",
+        "unknownError": "Error Desconocido",
+        "blue": "Azul",
+        "viewingDesc": "Revisar imágenes en una vista de galería grande"
     },
     "gallery": {
         "galleryImageSize": "Tamaño de la imagen",
@@ -33,7 +85,9 @@
         "autoSwitchNewImages": "Auto seleccionar Imágenes nuevas",
         "loadMore": "Cargar más",
         "noImagesInGallery": "No hay imágenes para mostrar",
-        "deleteImage": "Eliminar Imagen",
+        "deleteImage_one": "Eliminar Imagen",
+        "deleteImage_many": "",
+        "deleteImage_other": "",
         "deleteImageBin": "Las imágenes eliminadas se enviarán a la papelera de tu sistema operativo.",
         "deleteImagePermanent": "Las imágenes eliminadas no se pueden restaurar.",
         "assets": "Activos",
@@ -363,8 +417,7 @@
         "canvasMerged": "Lienzo consolidado",
         "sentToImageToImage": "Enviar hacia Imagen a Imagen",
         "sentToUnifiedCanvas": "Enviar hacia Lienzo Consolidado",
-        "parametersSet": "Parámetros establecidos",
-        "parametersNotSet": "Parámetros no establecidos",
+        "parametersNotSet": "Parámetros no recuperados",
         "metadataLoadFailed": "Error al cargar metadatos",
         "serverError": "Error en el servidor",
         "canceled": "Procesando la cancelación",
@@ -372,7 +425,8 @@
         "uploadFailedInvalidUploadDesc": "Debe ser una sola imagen PNG o JPEG",
         "parameterSet": "Conjunto de parámetros",
         "parameterNotSet": "Parámetro no configurado",
-        "problemCopyingImage": "No se puede copiar la imagen"
+        "problemCopyingImage": "No se puede copiar la imagen",
+        "errorCopied": "Error al copiar"
     },
     "tooltip": {
         "feature": {
@@ -442,7 +496,14 @@
         "previousImage": "Imagen anterior",
         "nextImage": "Siguiente imagen",
         "showOptionsPanel": "Mostrar el panel lateral",
-        "menu": "Menú"
+        "menu": "Menú",
+        "showGalleryPanel": "Mostrar panel de galería",
+        "loadMore": "Cargar más",
+        "about": "Acerca de",
+        "createIssue": "Crear un problema",
+        "resetUI": "Interfaz de usuario $t(accessibility.reset)",
+        "mode": "Modo",
+        "submitSupportTicket": "Enviar Ticket de Soporte"
     },
     "nodes": {
         "zoomInNodes": "Acercar",
@@ -455,5 +516,80 @@
         "reloadNodeTemplates": "Recargar las plantillas de nodos",
         "loadWorkflow": "Cargar el flujo de trabajo",
         "downloadWorkflow": "Descargar el flujo de trabajo en un archivo JSON"
+    },
+    "boards": {
+        "autoAddBoard": "Agregar panel automáticamente",
+        "changeBoard": "Cambiar el panel",
+        "clearSearch": "Borrar la búsqueda",
+        "deleteBoard": "Borrar el panel",
+        "selectBoard": "Seleccionar un panel",
+        "uncategorized": "Sin categoría",
+        "cancel": "Cancelar",
+        "addBoard": "Agregar un panel",
+        "movingImagesToBoard_one": "Moviendo {{count}} imagen al panel:",
+        "movingImagesToBoard_many": "Moviendo {{count}} imágenes al panel:",
+        "movingImagesToBoard_other": "Moviendo {{count}} imágenes al panel:",
+        "bottomMessage": "Al eliminar este panel y las imágenes que contiene, se restablecerán las funciones que los estén utilizando actualmente.",
+        "deleteBoardAndImages": "Borrar el panel y las imágenes",
+        "loading": "Cargando...",
+        "deletedBoardsCannotbeRestored": "Los paneles eliminados no se pueden restaurar",
+        "move": "Mover",
+        "menuItemAutoAdd": "Agregar automáticamente a este panel",
+        "searchBoard": "Buscando paneles…",
+        "topMessage": "Este panel contiene imágenes utilizadas en las siguientes funciones:",
+        "downloadBoard": "Descargar panel",
+        "deleteBoardOnly": "Borrar solo el panel",
+        "myBoard": "Mi panel",
+        "noMatching": "No hay paneles que coincidan"
+    },
+    "accordions": {
+        "compositing": {
+            "title": "Composición",
+            "infillTab": "Relleno"
+        },
+        "generation": {
+            "title": "Generación"
+        },
+        "image": {
+            "title": "Imagen"
+        },
+        "control": {
+            "title": "Control"
+        },
+        "advanced": {
+            "options": "$t(accordions.advanced.title) opciones",
+            "title": "Avanzado"
+        }
+    },
+    "ui": {
+        "tabs": {
+            "generationTab": "$t(ui.tabs.generation) $t(common.tab)",
+            "canvas": "Lienzo",
+            "generation": "Generación",
+            "queue": "Cola",
+            "queueTab": "$t(ui.tabs.queue) $t(common.tab)",
+            "workflows": "Flujos de trabajo",
+            "models": "Modelos",
+            "modelsTab": "$t(ui.tabs.models) $t(common.tab)",
+            "canvasTab": "$t(ui.tabs.canvas) $t(common.tab)",
+            "workflowsTab": "$t(ui.tabs.workflows) $t(common.tab)"
+        }
+    },
+    "controlLayers": {
+        "layers_one": "Capa",
+        "layers_many": "Capas",
+        "layers_other": "Capas"
+    },
+    "controlnet": {
+        "crop": "Cortar",
+        "delete": "Eliminar",
+        "depthAnythingDescription": "Generación de mapa de profundidad usando la técnica de Depth Anything",
+        "duplicate": "Duplicar",
+        "colorMapDescription": "Genera un mapa de color desde la imagen",
+        "depthMidasDescription": "Crea un mapa de profundidad con Midas",
+        "balanced": "Equilibrado",
+        "beginEndStepPercent": "Inicio / Final Porcentaje de pasos",
+        "detectResolution": "Detectar resolución",
+        "beginEndStepPercentShort": "Inicio / Final %"
     }
 }

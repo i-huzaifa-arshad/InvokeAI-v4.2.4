@@ -4,6 +4,7 @@ from typing import Optional
 
 import torch
 
+from invokeai.app.invocations.baseinvocation import BaseInvocation, BaseInvocationOutput, invocation, invocation_output
 from invokeai.app.invocations.constants import LATENT_SCALE_FACTOR
 from invokeai.app.invocations.fields import (
     ColorField,
@@ -15,17 +16,11 @@ from invokeai.app.invocations.fields import (
     InputField,
     LatentsField,
     OutputField,
+    TensorField,
     UIComponent,
 )
 from invokeai.app.services.images.images_common import ImageDTO
 from invokeai.app.services.shared.invocation_context import InvocationContext
-
-from .baseinvocation import (
-    BaseInvocation,
-    BaseInvocationOutput,
-    invocation,
-    invocation_output,
-)
 
 """
 Primitives: Boolean, Integer, Float, String, Image, Latents, Conditioning, Color
@@ -405,7 +400,17 @@ class ColorInvocation(BaseInvocation):
 
 # endregion
 
+
 # region Conditioning
+
+
+@invocation_output("mask_output")
+class MaskOutput(BaseInvocationOutput):
+    """A torch mask tensor."""
+
+    mask: TensorField = OutputField(description="The mask.")
+    width: int = OutputField(description="The width of the mask in pixels.")
+    height: int = OutputField(description="The height of the mask in pixels.")
 
 
 @invocation_output("conditioning_output")

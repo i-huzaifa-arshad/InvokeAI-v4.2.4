@@ -4,6 +4,7 @@ from typing import Optional, Union
 from zipfile import ZipFile
 
 from invokeai.app.services.board_records.board_records_common import BoardRecordNotFoundException
+from invokeai.app.services.bulk_download.bulk_download_base import BulkDownloadBase
 from invokeai.app.services.bulk_download.bulk_download_common import (
     DEFAULT_BULK_DOWNLOAD_ID,
     BulkDownloadException,
@@ -14,8 +15,6 @@ from invokeai.app.services.image_records.image_records_common import ImageRecord
 from invokeai.app.services.images.images_common import ImageDTO
 from invokeai.app.services.invoker import Invoker
 from invokeai.app.util.misc import uuid_string
-
-from .bulk_download_base import BulkDownloadBase
 
 
 class BulkDownloadService(BulkDownloadBase):
@@ -106,9 +105,7 @@ class BulkDownloadService(BulkDownloadBase):
         if self._invoker:
             assert bulk_download_id is not None
             self._invoker.services.events.emit_bulk_download_started(
-                bulk_download_id=bulk_download_id,
-                bulk_download_item_id=bulk_download_item_id,
-                bulk_download_item_name=bulk_download_item_name,
+                bulk_download_id, bulk_download_item_id, bulk_download_item_name
             )
 
     def _signal_job_completed(
@@ -118,10 +115,8 @@ class BulkDownloadService(BulkDownloadBase):
         if self._invoker:
             assert bulk_download_id is not None
             assert bulk_download_item_name is not None
-            self._invoker.services.events.emit_bulk_download_completed(
-                bulk_download_id=bulk_download_id,
-                bulk_download_item_id=bulk_download_item_id,
-                bulk_download_item_name=bulk_download_item_name,
+            self._invoker.services.events.emit_bulk_download_complete(
+                bulk_download_id, bulk_download_item_id, bulk_download_item_name
             )
 
     def _signal_job_failed(
@@ -131,11 +126,8 @@ class BulkDownloadService(BulkDownloadBase):
         if self._invoker:
             assert bulk_download_id is not None
             assert exception is not None
-            self._invoker.services.events.emit_bulk_download_failed(
-                bulk_download_id=bulk_download_id,
-                bulk_download_item_id=bulk_download_item_id,
-                bulk_download_item_name=bulk_download_item_name,
-                error=str(exception),
+            self._invoker.services.events.emit_bulk_download_error(
+                bulk_download_id, bulk_download_item_id, bulk_download_item_name, str(exception)
             )
 
     def stop(self, *args, **kwargs):

@@ -1,3 +1,5 @@
+from typing import Any, Literal, Type
+
 from diffusers import (
     DDIMScheduler,
     DDPMScheduler,
@@ -13,10 +15,39 @@ from diffusers import (
     LCMScheduler,
     LMSDiscreteScheduler,
     PNDMScheduler,
+    TCDScheduler,
     UniPCMultistepScheduler,
 )
+from diffusers.schedulers.scheduling_utils import SchedulerMixin
 
-SCHEDULER_MAP = {
+SCHEDULER_NAME_VALUES = Literal[
+    "ddim",
+    "ddpm",
+    "deis",
+    "lms",
+    "lms_k",
+    "pndm",
+    "heun",
+    "heun_k",
+    "euler",
+    "euler_k",
+    "euler_a",
+    "kdpm_2",
+    "kdpm_2_a",
+    "dpmpp_2s",
+    "dpmpp_2s_k",
+    "dpmpp_2m",
+    "dpmpp_2m_k",
+    "dpmpp_2m_sde",
+    "dpmpp_2m_sde_k",
+    "dpmpp_sde",
+    "dpmpp_sde_k",
+    "unipc",
+    "lcm",
+    "tcd",
+]
+
+SCHEDULER_MAP: dict[SCHEDULER_NAME_VALUES, tuple[Type[SchedulerMixin], dict[str, Any]]] = {
     "ddim": (DDIMScheduler, {}),
     "ddpm": (DDPMScheduler, {}),
     "deis": (DEISMultistepScheduler, {}),
@@ -40,4 +71,5 @@ SCHEDULER_MAP = {
     "dpmpp_sde_k": (DPMSolverSDEScheduler, {"use_karras_sigmas": True, "noise_sampler_seed": 0}),
     "unipc": (UniPCMultistepScheduler, {"cpu_only": True}),
     "lcm": (LCMScheduler, {}),
+    "tcd": (TCDScheduler, {}),
 }

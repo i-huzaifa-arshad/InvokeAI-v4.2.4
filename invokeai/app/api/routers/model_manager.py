@@ -3,22 +3,23 @@
 
 import io
 import pathlib
-import shutil
 import traceback
 from copy import deepcopy
-from typing import Any, Dict, List, Optional
+from tempfile import TemporaryDirectory
+from typing import Any, Dict, List, Optional, Type
 
 from fastapi import Body, Path, Query, Response, UploadFile
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.routing import APIRouter
 from PIL import Image
 from pydantic import AnyHttpUrl, BaseModel, ConfigDict, Field
 from starlette.exceptions import HTTPException
 from typing_extensions import Annotated
 
-from invokeai.app.services.model_install import ModelInstallJob
+from invokeai.app.api.dependencies import ApiDependencies
+from invokeai.app.services.model_images.model_images_common import ModelImageFileNotFoundException
+from invokeai.app.services.model_install.model_install_common import ModelInstallJob
 from invokeai.app.services.model_records import (
-    DuplicateModelException,
     InvalidModelException,
     ModelRecordChanges,
     UnknownModelException,
@@ -29,14 +30,11 @@ from invokeai.backend.model_manager.config import (
     MainCheckpointConfig,
     ModelFormat,
     ModelType,
-    SubModelType,
 )
 from invokeai.backend.model_manager.metadata.fetch.huggingface import HuggingFaceMetadataFetch
 from invokeai.backend.model_manager.metadata.metadata_base import ModelMetadataWithFiles, UnknownMetadataException
 from invokeai.backend.model_manager.search import ModelSearch
 from invokeai.backend.model_manager.starter_models import STARTER_MODELS, StarterModel, StarterModelWithoutDependencies
-
-from ..dependencies import ApiDependencies
 
 model_manager_router = APIRouter(prefix="/v2/models", tags=["model_manager"])
 
@@ -50,6 +48,13 @@ class ModelsList(BaseModel):
     models: List[AnyModelConfig]
 
     model_config = ConfigDict(use_enum_values=True)
+
+
+def add_cover_image_to_model_config(config: AnyModelConfig, dependencies: Type[ApiDependencies]) -> AnyModelConfig:
+    """Add a cover image URL to a model configuration."""
+    cover_image = dependencies.invoker.services.model_images.get_url(config.key)
+    config.cover_image = cover_image
+    return config
 
 
 ##############################################################################
@@ -118,8 +123,7 @@ async def list_model_records(
             record_store.search_by_attr(model_type=model_type, model_name=model_name, model_format=model_format)
         )
     for model in found_models:
-        cover_image = ApiDependencies.invoker.services.model_images.get_url(model.key)
-        model.cover_image = cover_image
+        model = add_cover_image_to_model_config(model, ApiDependencies)
     return ModelsList(models=found_models)
 
 
@@ -160,26 +164,11 @@ async def get_model_record(
     key: str = Path(description="Key of the model record to fetch."),
 ) -> AnyModelConfig:
     """Get a model record"""
-    record_store = ApiDependencies.invoker.services.model_manager.store
     try:
-        config: AnyModelConfig = record_store.get_model(key)
-        cover_image = ApiDependencies.invoker.services.model_images.get_url(key)
-        config.cover_image = cover_image
-        return config
+        config = ApiDependencies.invoker.services.model_manager.store.get_model(key)
+        return add_cover_image_to_model_config(config, ApiDependencies)
     except UnknownModelException as e:
         raise HTTPException(status_code=404, detail=str(e))
-
-
-# @model_manager_router.get("/summary", operation_id="list_model_summary")
-# async def list_model_summary(
-#     page: int = Query(default=0, description="The page to get"),
-#     per_page: int = Query(default=10, description="The number of models per page"),
-#     order_by: ModelRecordOrderBy = Query(default=ModelRecordOrderBy.Default, description="The attribute to order by"),
-# ) -> PaginatedResults[ModelSummary]:
-#     """Gets a page of model summary data."""
-#     record_store = ApiDependencies.invoker.services.model_manager.store
-#     results: PaginatedResults[ModelSummary] = record_store.list_models(page=page, per_page=per_page, order_by=order_by)
-#     return results
 
 
 class FoundModel(BaseModel):
@@ -219,28 +208,13 @@ async def scan_for_models(
         non_core_model_paths = [p for p in found_model_paths if not p.is_relative_to(core_models_path)]
 
         installed_models = ApiDependencies.invoker.services.model_manager.store.search_by_attr()
-        resolved_installed_model_paths: list[str] = []
-        installed_model_sources: list[str] = []
-
-        # This call lists all installed models.
-        for model in installed_models:
-            path = pathlib.Path(model.path)
-            # If the model has a source, we need to add it to the list of installed sources.
-            if model.source:
-                installed_model_sources.append(model.source)
-            # If the path is not absolute, that means it is in the app models directory, and we need to join it with
-            # the models path before resolving.
-            if not path.is_absolute():
-                resolved_installed_model_paths.append(str(pathlib.Path(models_path, path).resolve()))
-                continue
-            resolved_installed_model_paths.append(str(path.resolve()))
 
         scan_results: list[FoundModel] = []
 
-        # Check if the model is installed by comparing the resolved paths, appending to the scan result.
+        # Check if the model is installed by comparing paths, appending to the scan result.
         for p in non_core_model_paths:
             path = str(p)
-            is_installed = path in resolved_installed_model_paths or path in installed_model_sources
+            is_installed = any(str(models_path / m.path) == path for m in installed_models)
             found_model = FoundModel(path=path, is_installed=is_installed)
             scan_results.append(found_model)
     except Exception as e:
@@ -309,14 +283,15 @@ async def update_model_record(
     installer = ApiDependencies.invoker.services.model_manager.install
     try:
         record_store.update_model(key, changes=changes)
-        model_response: AnyModelConfig = installer.sync_model_path(key)
+        config = installer.sync_model_path(key)
+        config = add_cover_image_to_model_config(config, ApiDependencies)
         logger.info(f"Updated model: {key}")
     except UnknownModelException as e:
         raise HTTPException(status_code=404, detail=str(e))
     except ValueError as e:
         logger.error(str(e))
         raise HTTPException(status_code=409, detail=str(e))
-    return model_response
+    return config
 
 
 @model_manager_router.get(
@@ -513,6 +488,133 @@ async def install_model(
 
 
 @model_manager_router.get(
+    "/install/huggingface",
+    operation_id="install_hugging_face_model",
+    responses={
+        201: {"description": "The model is being installed"},
+        400: {"description": "Bad request"},
+        409: {"description": "There is already a model corresponding to this path or repo_id"},
+    },
+    status_code=201,
+    response_class=HTMLResponse,
+)
+async def install_hugging_face_model(
+    source: str = Query(description="HuggingFace repo_id to install"),
+) -> HTMLResponse:
+    """Install a Hugging Face model using a string identifier."""
+
+    def generate_html(title: str, heading: str, repo_id: str, is_error: bool, message: str | None = "") -> str:
+        if message:
+            message = f"<p>{message}</p>"
+        title_class = "error" if is_error else "success"
+        return f"""
+            <html>
+
+            <head>
+                <title>{title}</title>
+                <style>
+                    body {{
+                        text-align: center;
+                        background-color: hsl(220 12% 10% / 1);
+                        font-family: Helvetica, sans-serif;
+                        color: hsl(220 12% 86% / 1);
+                    }}
+
+                    .repo-id {{
+                        color: hsl(220 12% 68% / 1);
+                    }}
+
+                    .error {{
+                        color: hsl(0 42% 68% / 1)
+                    }}
+
+                    .message-box {{
+                        display: inline-block;
+                        border-radius: 5px;
+                        background-color: hsl(220 12% 20% / 1);
+                        padding-inline-end: 30px;
+                        padding: 20px;
+                        padding-inline-start: 30px;
+                        padding-inline-end: 30px;
+                    }}
+
+                    .container {{
+                        display: flex;
+                        width: 100%;
+                        height: 100%;
+                        align-items: center;
+                        justify-content: center;
+                    }}
+
+                    a {{
+                        color: inherit
+                    }}
+
+                    a:visited {{
+                        color: inherit
+                    }}
+
+                    a:active {{
+                        color: inherit
+                    }}
+                </style>
+            </head>
+
+            <body style="background-color: hsl(220 12% 10% / 1);">
+                <div class="container">
+                    <div class="message-box">
+                        <h2 class="{title_class}">{heading}</h2>
+                        {message}
+                        <p class="repo-id">Repo ID: {repo_id}</p>
+                    </div>
+                </div>
+            </body>
+
+            </html>
+        """
+
+    try:
+        metadata = HuggingFaceMetadataFetch().from_id(source)
+        assert isinstance(metadata, ModelMetadataWithFiles)
+    except UnknownMetadataException:
+        title = "Unable to Install Model"
+        heading = "No HuggingFace repository found with that repo ID."
+        message = "Ensure the repo ID is correct and try again."
+        return HTMLResponse(content=generate_html(title, heading, source, True, message), status_code=400)
+
+    logger = ApiDependencies.invoker.services.logger
+
+    try:
+        installer = ApiDependencies.invoker.services.model_manager.install
+        if metadata.is_diffusers:
+            installer.heuristic_import(
+                source=source,
+                inplace=False,
+            )
+        elif metadata.ckpt_urls is not None and len(metadata.ckpt_urls) == 1:
+            installer.heuristic_import(
+                source=str(metadata.ckpt_urls[0]),
+                inplace=False,
+            )
+        else:
+            title = "Unable to Install Model"
+            heading = "This HuggingFace repo has multiple models."
+            message = "Please use the Model Manager to install this model."
+            return HTMLResponse(content=generate_html(title, heading, source, True, message), status_code=200)
+
+        title = "Model Install Started"
+        heading = "Your HuggingFace model is installing now."
+        message = "You can close this tab and check the Model Manager for installation progress."
+        return HTMLResponse(content=generate_html(title, heading, source, False, message), status_code=201)
+    except Exception as e:
+        logger.error(str(e))
+        title = "Unable to Install Model"
+        heading = "There was an problem installing this model."
+        message = 'Please use the Model Manager directly to install this model. If the issue persists, ask for help on <a href="https://discord.gg/ZmtBAhwWhy">discord</a>.'
+        return HTMLResponse(content=generate_html(title, heading, source, True, message), status_code=500)
+
+
+@model_manager_router.get(
     "/install",
     operation_id="list_model_installs",
 )
@@ -629,48 +731,54 @@ async def convert_model(
         logger.error(f"The model with key {key} is not a main checkpoint model.")
         raise HTTPException(400, f"The model with key {key} is not a main checkpoint model.")
 
-    # loading the model will convert it into a cached diffusers file
+    with TemporaryDirectory(dir=ApiDependencies.invoker.services.configuration.models_path) as tmpdir:
+        convert_path = pathlib.Path(tmpdir) / pathlib.Path(model_config.path).stem
+        converted_model = loader.load_model(model_config)
+        # write the converted file to the convert path
+        raw_model = converted_model.model
+        assert hasattr(raw_model, "save_pretrained")
+        raw_model.save_pretrained(convert_path)
+        assert convert_path.exists()
+
+        # temporarily rename the original safetensors file so that there is no naming conflict
+        original_name = model_config.name
+        model_config.name = f"{original_name}.DELETE"
+        changes = ModelRecordChanges(name=model_config.name)
+        store.update_model(key, changes=changes)
+
+        # install the diffusers
+        try:
+            new_key = installer.install_path(
+                convert_path,
+                config={
+                    "name": original_name,
+                    "description": model_config.description,
+                    "hash": model_config.hash,
+                    "source": model_config.source,
+                },
+            )
+        except Exception as e:
+            logger.error(str(e))
+            store.update_model(key, changes=ModelRecordChanges(name=original_name))
+            raise HTTPException(status_code=409, detail=str(e))
+
+    # Update the model image if the model had one
     try:
-        cc_size = loader.convert_cache.max_size
-        if cc_size == 0:  # temporary set the convert cache to a positive number so that cached model is written
-            loader._convert_cache.max_size = 1.0
-        loader.load_model(model_config, submodel_type=SubModelType.Scheduler)
-    finally:
-        loader._convert_cache.max_size = cc_size
-
-    # Get the path of the converted model from the loader
-    cache_path = loader.convert_cache.cache_path(key)
-    assert cache_path.exists()
-
-    # temporarily rename the original safetensors file so that there is no naming conflict
-    original_name = model_config.name
-    model_config.name = f"{original_name}.DELETE"
-    changes = ModelRecordChanges(name=model_config.name)
-    store.update_model(key, changes=changes)
-
-    # install the diffusers
-    try:
-        new_key = installer.install_path(
-            cache_path,
-            config={
-                "name": original_name,
-                "description": model_config.description,
-                "hash": model_config.hash,
-                "source": model_config.source,
-            },
-        )
-    except DuplicateModelException as e:
-        logger.error(str(e))
-        raise HTTPException(status_code=409, detail=str(e))
+        model_image = ApiDependencies.invoker.services.model_images.get(key)
+        ApiDependencies.invoker.services.model_images.save(model_image, new_key)
+        ApiDependencies.invoker.services.model_images.delete(key)
+    except ModelImageFileNotFoundException:
+        pass
 
     # delete the original safetensors file
     installer.delete(key)
 
-    # delete the cached version
-    shutil.rmtree(cache_path)
+    # delete the temporary directory
+    # shutil.rmtree(cache_path)
 
     # return the config record for the new diffusers directory
-    new_config: AnyModelConfig = store.get_model(new_key)
+    new_config = store.get_model(new_key)
+    new_config = add_cover_image_to_model_config(new_config, ApiDependencies)
     return new_config
 
 

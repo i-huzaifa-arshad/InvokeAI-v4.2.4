@@ -75,7 +75,10 @@
         "copy": "Kopieren",
         "aboutHeading": "Nutzen Sie Ihre kreative Energie",
         "toResolve": "Lösen",
-        "add": "Hinzufügen"
+        "add": "Hinzufügen",
+        "loglevel": "Protokoll Stufe",
+        "selected": "Ausgewählt",
+        "beta": "Beta"
     },
     "gallery": {
         "galleryImageSize": "Bildgröße",
@@ -84,7 +87,8 @@
         "loadMore": "Mehr laden",
         "noImagesInGallery": "Keine Bilder in der Galerie",
         "loading": "Lade",
-        "deleteImage": "Lösche Bild",
+        "deleteImage_one": "Lösche Bild",
+        "deleteImage_other": "Lösche {{count}} Bilder",
         "copy": "Kopieren",
         "download": "Runterladen",
         "setCurrentImage": "Setze aktuelle Bild",
@@ -388,7 +392,21 @@
         "vaePrecision": "VAE-Präzision",
         "variant": "Variante",
         "modelDeleteFailed": "Modell konnte nicht gelöscht werden",
-        "noModelSelected": "Kein Modell ausgewählt"
+        "noModelSelected": "Kein Modell ausgewählt",
+        "huggingFace": "HuggingFace",
+        "defaultSettings": "Standardeinstellungen",
+        "edit": "Bearbeiten",
+        "cancel": "Stornieren",
+        "defaultSettingsSaved": "Standardeinstellungen gespeichert",
+        "addModels": "Model hinzufügen",
+        "deleteModelImage": "Lösche Model Bild",
+        "hfTokenInvalidErrorMessage": "Falscher oder fehlender HuggingFace Schlüssel.",
+        "huggingFaceRepoID": "HuggingFace Repo ID",
+        "hfToken": "HuggingFace Schlüssel",
+        "hfTokenInvalid": "Falscher oder fehlender HF Schlüssel",
+        "huggingFacePlaceholder": "besitzer/model-name",
+        "hfTokenSaved": "HF Schlüssel gespeichert",
+        "hfTokenUnableToVerify": "Konnte den HF Schlüssel nicht validieren"
     },
     "parameters": {
         "images": "Bilder",
@@ -472,7 +490,6 @@
         "canvasMerged": "Leinwand zusammengeführt",
         "sentToImageToImage": "Gesendet an Bild zu Bild",
         "sentToUnifiedCanvas": "Gesendet an Leinwand",
-        "parametersSet": "Parameter festlegen",
         "parametersNotSet": "Parameter nicht festgelegt",
         "metadataLoadFailed": "Metadaten konnten nicht geladen werden",
         "setCanvasInitialImage": "Ausgangsbild setzen",
@@ -677,7 +694,12 @@
         "body": "Körper",
         "hands": "Hände",
         "dwOpenpose": "DW Openpose",
-        "dwOpenposeDescription": "Posenschätzung mit DW Openpose"
+        "dwOpenposeDescription": "Posenschätzung mit DW Openpose",
+        "selectCLIPVisionModel": "Wähle ein CLIP Vision Model aus",
+        "ipAdapterMethod": "Methode",
+        "composition": "Nur Komposition",
+        "full": "Voll",
+        "style": "Nur Style"
     },
     "queue": {
         "status": "Status",
@@ -708,7 +730,6 @@
         "resume": "Wieder aufnehmen",
         "item": "Auftrag",
         "notReady": "Warteschlange noch nicht bereit",
-        "queueCountPrediction": "{{promptsCount}} Prompts × {{iterations}} Iterationen -> {{count}} Generationen",
         "clearQueueAlertDialog": "\"Die Warteschlange leeren\" stoppt den aktuellen Prozess und leert die Warteschlange komplett.",
         "completedIn": "Fertig in",
         "cancelBatchSucceeded": "Stapel abgebrochen",
@@ -765,7 +786,10 @@
         "recallParameters": "Parameter wiederherstellen",
         "cfgRescaleMultiplier": "$t(parameters.cfgRescaleMultiplier)",
         "allPrompts": "Alle Prompts",
-        "imageDimensions": "Bilder Auslösungen"
+        "imageDimensions": "Bilder Auslösungen",
+        "parameterSet": "Parameter {{parameter}} setzen",
+        "recallParameter": "{{label}} Abrufen",
+        "parsingFailed": "Parsing Fehlgeschlagen"
     },
     "popovers": {
         "noiseUseCPU": {
@@ -997,7 +1021,8 @@
         "float": "Kommazahlen",
         "enum": "Aufzählung",
         "fullyContainNodes": "Vollständig ausgewählte Nodes auswählen",
-        "editMode": "Im Workflow-Editor bearbeiten"
+        "editMode": "Im Workflow-Editor bearbeiten",
+        "resetToDefaultValue": "Auf Standardwert zurücksetzen"
     },
     "hrf": {
         "enableHrf": "Korrektur für hohe Auflösungen",
@@ -1030,7 +1055,8 @@
             "title": "Bild"
         },
         "advanced": {
-            "title": "Erweitert"
+            "title": "Erweitert",
+            "options": "$t(accordions.advanced.title) Optionen"
         },
         "control": {
             "title": "Kontrolle"

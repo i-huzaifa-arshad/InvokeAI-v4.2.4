@@ -1,7 +1,5 @@
 import { Flex, IconButton, Progress, Text, Tooltip } from '@invoke-ai/ui-library';
-import { useAppDispatch } from 'app/store/storeHooks';
-import { addToast } from 'features/system/store/systemSlice';
-import { makeToast } from 'features/system/util/makeToast';
+import { toast } from 'features/toast/toast';
 import { t } from 'i18next';
 import { isNil } from 'lodash-es';
 import { useCallback, useMemo } from 'react';
@@ -29,7 +27,6 @@ const formatBytes = (bytes: number) => {
 
 export const ModelInstallQueueItem = (props: ModelListItemProps) => {
   const { installJob } = props;
-  const dispatch = useAppDispatch();
 
   const [deleteImportModel] = useCancelModelInstallMutation();
 
@@ -37,28 +34,22 @@ export const ModelInstallQueueItem = (props: ModelListItemProps) => {
     deleteImportModel(installJob.id)
       .unwrap()
       .then((_) => {
-        dispatch(
-          addToast(
-            makeToast({
-              title: t('toast.modelImportCanceled'),
-              status: 'success',
-            })
-          )
-        );
+        toast({
+          id: 'MODEL_INSTALL_CANCELED',
+          title: t('toast.modelImportCanceled'),
+          status: 'success',
+        });
       })
       .catch((error) => {
         if (error) {
-          dispatch(
-            addToast(
-              makeToast({
-                title: `${error.data.detail} `,
-                status: 'error',
-              })
-            )
-          );
+          toast({
+            id: 'MODEL_INSTALL_CANCEL_FAILED',
+            title: `${error.data.detail} `,
+            status: 'error',
+          });
         }
       });
-  }, [deleteImportModel, installJob, dispatch]);
+  }, [deleteImportModel, installJob]);
 
   const sourceLocation = useMemo(() => {
     switch (installJob.source.type) {
@@ -87,6 +78,10 @@ export const ModelInstallQueueItem = (props: ModelListItemProps) => {
   }, [installJob.source]);
 
   const progressValue = useMemo(() => {
+    if (installJob.status === 'completed' || installJob.status === 'error' || installJob.status === 'cancelled') {
+      return 100;
+    }
+
     if (isNil(installJob.bytes) || isNil(installJob.total_bytes)) {
       return null;
     }
@@ -96,7 +91,7 @@ export const ModelInstallQueueItem = (props: ModelListItemProps) => {
     }
 
     return (installJob.bytes / installJob.total_bytes) * 100;
-  }, [installJob.bytes, installJob.total_bytes]);
+  }, [installJob.bytes, installJob.status, installJob.total_bytes]);
 
   return (
     <Flex gap={3} w="full" alignItems="center">

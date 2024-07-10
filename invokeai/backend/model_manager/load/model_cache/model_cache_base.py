@@ -30,6 +30,11 @@ class ModelLockerBase(ABC):
         """Unlock the contained model, and remove it from VRAM."""
         pass
 
+    @abstractmethod
+    def get_state_dict(self) -> Optional[Dict[str, torch.Tensor]]:
+        """Return the state dict (if any) for the cached model."""
+        pass
+
     @property
     @abstractmethod
     def model(self) -> AnyModel:
@@ -42,10 +47,31 @@ T = TypeVar("T")
 
 @dataclass
 class CacheRecord(Generic[T]):
-    """Elements of the cache."""
+    """
+    Elements of the cache:
+
+    key: Unique key for each model, same as used in the models database.
+    model: Model in memory.
+    state_dict: A read-only copy of the model's state dict in RAM. It will be
+                used as a template for creating a copy in the VRAM.
+    size: Size of the model
+    loaded: True if the model's state dict is currently in VRAM
+
+    Before a model is executed, the state_dict template is copied into VRAM,
+    and then injected into the model. When the model is finished, the VRAM
+    copy of the state dict is deleted, and the RAM version is reinjected
+    into the model.
+
+    The state_dict should be treated as a read-only attribute. Do not attempt
+    to patch or otherwise modify it. Instead, patch the copy of the state_dict
+    after it is loaded into the execution device (e.g. CUDA) using the `LoadedModel`
+    context manager call `model_on_device()`.
+    """
 
     key: str
     model: T
+    device: torch.device
+    state_dict: Optional[Dict[str, torch.Tensor]]
     size: int
     loaded: bool = False
     _locks: int = 0
@@ -117,7 +143,7 @@ class ModelCacheBase(ABC, Generic[T]):
 
     @property
     @abstractmethod
-    def stats(self) -> CacheStats:
+    def stats(self) -> Optional[CacheStats]:
         """Return collected CacheStats object."""
         pass
 
@@ -143,7 +169,6 @@ class ModelCacheBase(ABC, Generic[T]):
         self,
         key: str,
         model: T,
-        size: int,
         submodel_type: Optional[SubModelType] = None,
     ) -> None:
         """Store model under key and optional submodel_type."""

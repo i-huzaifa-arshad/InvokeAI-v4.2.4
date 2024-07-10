@@ -10,9 +10,7 @@ from picklescan.scanner import scan_file_path
 import invokeai.backend.util.logging as logger
 from invokeai.app.util.misc import uuid_string
 from invokeai.backend.model_hash.model_hash import HASHING_ALGORITHMS, ModelHash
-from invokeai.backend.util.util import SilenceWarnings
-
-from .config import (
+from invokeai.backend.model_manager.config import (
     AnyModelConfig,
     BaseModelType,
     ControlAdapterDefaultSettings,
@@ -26,7 +24,8 @@ from .config import (
     ModelVariantType,
     SchedulerPredictionType,
 )
-from .util.model_util import lora_token_vector_length, read_checkpoint_meta
+from invokeai.backend.model_manager.util.model_util import lora_token_vector_length, read_checkpoint_meta
+from invokeai.backend.util.silence_warnings import SilenceWarnings
 
 CkptType = Dict[str | int, Any]
 
@@ -51,6 +50,7 @@ LEGACY_CONFIGS: Dict[BaseModelType, Dict[ModelVariantType, Union[str, Dict[Sched
     },
     BaseModelType.StableDiffusionXL: {
         ModelVariantType.Normal: "sd_xl_base.yaml",
+        ModelVariantType.Inpaint: "sd_xl_inpaint.yaml",
     },
     BaseModelType.StableDiffusionXLRefiner: {
         ModelVariantType.Normal: "sd_xl_refiner.yaml",
@@ -311,6 +311,8 @@ class ModelProbe(object):
             config_file = (
                 "stable-diffusion/v1-inference.yaml"
                 if base_type is BaseModelType.StableDiffusion1
+                else "stable-diffusion/sd_xl_base.yaml"
+                if base_type is BaseModelType.StableDiffusionXL
                 else "stable-diffusion/v2-inference.yaml"
             )
         else:
@@ -324,7 +326,7 @@ class ModelProbe(object):
         with SilenceWarnings():
             if model_path.suffix.endswith((".ckpt", ".pt", ".pth", ".bin")):
                 cls._scan_model(model_path.name, model_path)
-                model = torch.load(model_path)
+                model = torch.load(model_path, map_location="cpu")
                 assert isinstance(model, dict)
                 return model
             else:
@@ -450,8 +452,16 @@ class PipelineCheckpointProbe(CheckpointProbeBase):
 
 class VaeCheckpointProbe(CheckpointProbeBase):
     def get_base_type(self) -> BaseModelType:
-        # I can't find any standalone 2.X VAEs to test with!
-        return BaseModelType.StableDiffusion1
+        # VAEs of all base types have the same structure, so we wimp out and
+        # guess using the name.
+        for regexp, basetype in [
+            (r"xl", BaseModelType.StableDiffusionXL),
+            (r"sd2", BaseModelType.StableDiffusion2),
+            (r"vae", BaseModelType.StableDiffusion1),
+        ]:
+            if re.search(regexp, self.model_path.name, re.IGNORECASE):
+                return basetype
+        raise InvalidModelConfigException("Cannot determine base type")
 
 
 class LoRACheckpointProbe(CheckpointProbeBase):

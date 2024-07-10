@@ -13,16 +13,34 @@ from pydantic_core import Url
 
 from invokeai.app.services.config import InvokeAIAppConfig
 from invokeai.app.services.events.events_base import EventServiceBase
+from invokeai.app.services.events.events_common import (
+    ModelInstallCompleteEvent,
+    ModelInstallDownloadProgressEvent,
+    ModelInstallDownloadsCompleteEvent,
+    ModelInstallDownloadStartedEvent,
+    ModelInstallErrorEvent,
+    ModelInstallStartedEvent,
+)
 from invokeai.app.services.model_install import (
+    HFModelSource,
+    ModelInstallServiceBase,
+)
+from invokeai.app.services.model_install.model_install_common import (
     InstallStatus,
     LocalModelSource,
     ModelInstallJob,
-    ModelInstallServiceBase,
     URLModelSource,
 )
 from invokeai.app.services.model_records import ModelRecordChanges, UnknownModelException
-from invokeai.backend.model_manager.config import BaseModelType, InvalidModelConfigException, ModelFormat, ModelType
+from invokeai.backend.model_manager.config import (
+    BaseModelType,
+    InvalidModelConfigException,
+    ModelFormat,
+    ModelRepoVariant,
+    ModelType,
+)
 from tests.backend.model_manager.model_manager_fixtures import *  # noqa F403
+from tests.test_nodes import TestEventService
 
 OS = platform.uname().system
 
@@ -87,9 +105,11 @@ def test_rename(
     key = mm2_installer.install_path(embedding_file)
     model_record = store.get_model(key)
     assert model_record.path.endswith("sd-1/embedding/test_embedding.safetensors")
-    store.update_model(key, ModelRecordChanges(name="new_name.safetensors", base=BaseModelType("sd-2")))
+    store.update_model(key, ModelRecordChanges(name="new model name", base=BaseModelType("sd-2")))
     new_model_record = mm2_installer.sync_model_path(key)
-    assert new_model_record.path.endswith("sd-2/embedding/new_name.safetensors")
+    # Renaming the model record shouldn't rename the file
+    assert new_model_record.name == "new model name"
+    assert new_model_record.path.endswith("sd-2/embedding/test_embedding.safetensors")
 
 
 @pytest.mark.parametrize(
@@ -128,17 +148,16 @@ def test_background_install(
     assert job.total_bytes == size
 
     # test that the expected events were issued
-    bus = mm2_installer.event_bus
+    bus: TestEventService = mm2_installer.event_bus
     assert bus
     assert hasattr(bus, "events")
 
     assert len(bus.events) == 2
-    event_names = [x.event_name for x in bus.events]
-    assert "model_install_running" in event_names
-    assert "model_install_completed" in event_names
-    assert Path(bus.events[0].payload["source"]) == source
-    assert Path(bus.events[1].payload["source"]) == source
-    key = bus.events[1].payload["key"]
+    assert isinstance(bus.events[0], ModelInstallStartedEvent)
+    assert isinstance(bus.events[1], ModelInstallCompleteEvent)
+    assert Path(bus.events[0].source) == source
+    assert Path(bus.events[1].source) == source
+    key = bus.events[1].key
     assert key is not None
 
     # see if the thing actually got installed at the expected location
@@ -213,11 +232,11 @@ def test_delete_register(
         store.get_model(key)
 
 
-@pytest.mark.timeout(timeout=20, method="thread")
+@pytest.mark.timeout(timeout=10, method="thread")
 def test_simple_download(mm2_installer: ModelInstallServiceBase, mm2_app_config: InvokeAIAppConfig) -> None:
     source = URLModelSource(url=Url("https://www.test.foo/download/test_embedding.safetensors"))
 
-    bus = mm2_installer.event_bus
+    bus: TestEventService = mm2_installer.event_bus
     store = mm2_installer.record_store
     assert store is not None
     assert bus is not None
@@ -234,19 +253,44 @@ def test_simple_download(mm2_installer: ModelInstallServiceBase, mm2_app_config:
     model_record = store.get_model(key)
     assert (mm2_app_config.models_path / model_record.path).exists()
 
-    assert len(bus.events) == 4
-    event_names = [x.event_name for x in bus.events]
-    assert event_names == [
-        "model_install_downloading",
-        "model_install_downloads_done",
-        "model_install_running",
-        "model_install_completed",
-    ]
+    assert len(bus.events) == 5
+    assert isinstance(bus.events[0], ModelInstallDownloadStartedEvent)  # download starts
+    assert isinstance(bus.events[1], ModelInstallDownloadProgressEvent)  # download progresses
+    assert isinstance(bus.events[2], ModelInstallDownloadsCompleteEvent)  # download completed
+    assert isinstance(bus.events[3], ModelInstallStartedEvent)  # install started
+    assert isinstance(bus.events[4], ModelInstallCompleteEvent)  # install completed
 
 
-@pytest.mark.timeout(timeout=20, method="thread")
-def test_huggingface_download(mm2_installer: ModelInstallServiceBase, mm2_app_config: InvokeAIAppConfig) -> None:
+@pytest.mark.timeout(timeout=10, method="thread")
+def test_huggingface_install(mm2_installer: ModelInstallServiceBase, mm2_app_config: InvokeAIAppConfig) -> None:
     source = URLModelSource(url=Url("https://huggingface.co/stabilityai/sdxl-turbo"))
+
+    bus: TestEventService = mm2_installer.event_bus
+    store = mm2_installer.record_store
+    assert isinstance(bus, EventServiceBase)
+    assert store is not None
+
+    job = mm2_installer.import_model(source)
+    job_list = mm2_installer.wait_for_installs(timeout=10)
+    assert len(job_list) == 1
+    assert job.complete
+    assert job.config_out
+
+    key = job.config_out.key
+    model_record = store.get_model(key)
+    assert (mm2_app_config.models_path / model_record.path).exists()
+    assert model_record.type == ModelType.Main
+    assert model_record.format == ModelFormat.Diffusers
+
+    assert any(isinstance(x, ModelInstallStartedEvent) for x in bus.events)
+    assert any(isinstance(x, ModelInstallDownloadProgressEvent) for x in bus.events)
+    assert any(isinstance(x, ModelInstallCompleteEvent) for x in bus.events)
+    assert len(bus.events) >= 3
+
+
+@pytest.mark.timeout(timeout=10, method="thread")
+def test_huggingface_repo_id(mm2_installer: ModelInstallServiceBase, mm2_app_config: InvokeAIAppConfig) -> None:
+    source = HFModelSource(repo_id="stabilityai/sdxl-turbo", variant=ModelRepoVariant.Default)
 
     bus = mm2_installer.event_bus
     store = mm2_installer.record_store
@@ -267,13 +311,24 @@ def test_huggingface_download(mm2_installer: ModelInstallServiceBase, mm2_app_co
 
     assert hasattr(bus, "events")  # the dummyeventservice has this
     assert len(bus.events) >= 3
-    event_names = {x.event_name for x in bus.events}
-    assert event_names == {
-        "model_install_downloading",
-        "model_install_downloads_done",
-        "model_install_running",
-        "model_install_completed",
-    }
+    event_types = [type(x) for x in bus.events]
+    assert all(
+        x in event_types
+        for x in [
+            ModelInstallDownloadProgressEvent,
+            ModelInstallDownloadsCompleteEvent,
+            ModelInstallStartedEvent,
+            ModelInstallCompleteEvent,
+        ]
+    )
+
+    completed_events = [x for x in bus.events if isinstance(x, ModelInstallCompleteEvent)]
+    downloading_events = [x for x in bus.events if isinstance(x, ModelInstallDownloadProgressEvent)]
+    assert completed_events[0].total_bytes == downloading_events[-1].bytes
+    assert job.total_bytes == completed_events[0].total_bytes
+    print(downloading_events[-1])
+    print(job.download_parts)
+    assert job.total_bytes == sum(x["total_bytes"] for x in downloading_events[-1].parts)
 
 
 def test_404_download(mm2_installer: ModelInstallServiceBase, mm2_app_config: InvokeAIAppConfig) -> None:
@@ -285,7 +340,13 @@ def test_404_download(mm2_installer: ModelInstallServiceBase, mm2_app_config: In
     assert job.error_type == "HTTPError"
     assert job.error
     assert "NOT FOUND" in job.error
+    assert job.error_traceback is not None
     assert job.error_traceback.startswith("Traceback")
+    bus = mm2_installer.event_bus
+    assert bus is not None
+    assert hasattr(bus, "events")  # the dummyeventservice has this
+    event_types = [type(x) for x in bus.events]
+    assert ModelInstallErrorEvent in event_types
 
 
 def test_other_error_during_install(
@@ -307,7 +368,6 @@ def test_other_error_during_install(
     assert job.error == "Test error"
 
 
-# TODO: Fix bug in model install causing jobs to get installed multiple times then uncomment this test
 @pytest.mark.parametrize(
     "model_params",
     [
@@ -325,7 +385,7 @@ def test_other_error_during_install(
         },
     ],
 )
-@pytest.mark.timeout(timeout=40, method="thread")
+@pytest.mark.timeout(timeout=10, method="thread")
 def test_heuristic_import_with_type(mm2_installer: ModelInstallServiceBase, model_params: Dict[str, str]):
     """Test whether or not type is respected on configs when passed to heuristic import."""
     assert "name" in model_params and "type" in model_params
@@ -341,7 +401,7 @@ def test_heuristic_import_with_type(mm2_installer: ModelInstallServiceBase, mode
     }
     assert "repo_id" in model_params
     install_job1 = mm2_installer.heuristic_import(source=model_params["repo_id"], config=config1)
-    mm2_installer.wait_for_job(install_job1, timeout=20)
+    mm2_installer.wait_for_job(install_job1, timeout=10)
     if model_params["type"] != "embedding":
         assert install_job1.errored
         assert install_job1.error_type == "InvalidModelConfigException"
@@ -350,6 +410,6 @@ def test_heuristic_import_with_type(mm2_installer: ModelInstallServiceBase, mode
     assert install_job1.config_out if model_params["type"] == "embedding" else not install_job1.config_out
 
     install_job2 = mm2_installer.heuristic_import(source=model_params["repo_id"], config=config2)
-    mm2_installer.wait_for_job(install_job2, timeout=20)
+    mm2_installer.wait_for_job(install_job2, timeout=10)
     assert install_job2.complete
     assert install_job2.config_out if model_params["type"] == "embedding" else not install_job2.config_out

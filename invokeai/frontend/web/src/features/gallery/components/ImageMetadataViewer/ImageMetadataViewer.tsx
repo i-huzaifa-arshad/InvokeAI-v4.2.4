@@ -1,6 +1,7 @@
 import { ExternalLink, Flex, Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@invoke-ai/ui-library';
 import { IAINoContentFallback } from 'common/components/IAIImageFallback';
 import ScrollableContent from 'common/components/OverlayScrollbars/ScrollableContent';
+import ImageMetadataGraphTabContent from 'features/gallery/components/ImageMetadataViewer/ImageMetadataGraphTabContent';
 import { useMetadataItem } from 'features/metadata/hooks/useMetadataItem';
 import { handlers } from 'features/metadata/util/handlers';
 import { memo } from 'react';
@@ -52,6 +53,7 @@ const ImageMetadataViewer = ({ image }: ImageMetadataViewerProps) => {
           <Tab>{t('metadata.metadata')}</Tab>
           <Tab>{t('metadata.imageDetails')}</Tab>
           <Tab>{t('metadata.workflow')}</Tab>
+          <Tab>{t('nodes.graph')}</Tab>
         </TabList>
 
         <TabPanels>
@@ -66,20 +68,31 @@ const ImageMetadataViewer = ({ image }: ImageMetadataViewerProps) => {
           </TabPanel>
           <TabPanel>
             {metadata ? (
-              <DataViewer data={metadata} label={t('metadata.metadata')} />
+              <DataViewer
+                fileName={`${image.image_name.replace('.png', '')}_metadata`}
+                data={metadata}
+                label={t('metadata.metadata')}
+              />
             ) : (
               <IAINoContentFallback label={t('metadata.noMetaData')} />
             )}
           </TabPanel>
           <TabPanel>
             {image ? (
-              <DataViewer data={image} label={t('metadata.imageDetails')} />
+              <DataViewer
+                fileName={`${image.image_name.replace('.png', '')}_details`}
+                data={image}
+                label={t('metadata.imageDetails')}
+              />
             ) : (
               <IAINoContentFallback label={t('metadata.noImageDetails')} />
             )}
           </TabPanel>
           <TabPanel>
             <ImageMetadataWorkflowTabContent image={image} />
+          </TabPanel>
+          <TabPanel>
+            <ImageMetadataGraphTabContent image={image} />
           </TabPanel>
         </TabPanels>
       </Tabs>

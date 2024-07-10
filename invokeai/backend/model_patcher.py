@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import pickle
 from contextlib import contextmanager
-from typing import Any, Dict, Iterator, List, Optional, Tuple, Union
+from typing import Any, Dict, Generator, Iterator, List, Optional, Tuple, Union
 
 import numpy as np
 import torch
@@ -13,12 +13,12 @@ from diffusers import OnnxRuntimeModel, UNet2DConditionModel
 from transformers import CLIPTextModel, CLIPTextModelWithProjection, CLIPTokenizer
 
 from invokeai.app.shared.models import FreeUConfig
+from invokeai.backend.lora import LoRAModelRaw
 from invokeai.backend.model_manager import AnyModel
 from invokeai.backend.model_manager.load.optimizations import skip_torch_weight_init
 from invokeai.backend.onnx.onnx_runtime import IAIOnnxRuntimeModel
-
-from .lora import LoRAModelRaw
-from .textual_inversion import TextualInversionManager, TextualInversionModelRaw
+from invokeai.backend.textual_inversion import TextualInversionManager, TextualInversionModelRaw
+from invokeai.backend.util.devices import TorchDevice
 
 """
 loras = [
@@ -66,8 +66,14 @@ class ModelPatcher:
         cls,
         unet: UNet2DConditionModel,
         loras: Iterator[Tuple[LoRAModelRaw, float]],
-    ) -> None:
-        with cls.apply_lora(unet, loras, "lora_unet_"):
+        model_state_dict: Optional[Dict[str, torch.Tensor]] = None,
+    ) -> Generator[None, None, None]:
+        with cls.apply_lora(
+            unet,
+            loras=loras,
+            prefix="lora_unet_",
+            model_state_dict=model_state_dict,
+        ):
             yield
 
     @classmethod
@@ -76,28 +82,9 @@ class ModelPatcher:
         cls,
         text_encoder: CLIPTextModel,
         loras: Iterator[Tuple[LoRAModelRaw, float]],
-    ) -> None:
-        with cls.apply_lora(text_encoder, loras, "lora_te_"):
-            yield
-
-    @classmethod
-    @contextmanager
-    def apply_sdxl_lora_text_encoder(
-        cls,
-        text_encoder: CLIPTextModel,
-        loras: List[Tuple[LoRAModelRaw, float]],
-    ) -> None:
-        with cls.apply_lora(text_encoder, loras, "lora_te1_"):
-            yield
-
-    @classmethod
-    @contextmanager
-    def apply_sdxl_lora_text_encoder2(
-        cls,
-        text_encoder: CLIPTextModel,
-        loras: List[Tuple[LoRAModelRaw, float]],
-    ) -> None:
-        with cls.apply_lora(text_encoder, loras, "lora_te2_"):
+        model_state_dict: Optional[Dict[str, torch.Tensor]] = None,
+    ) -> Generator[None, None, None]:
+        with cls.apply_lora(text_encoder, loras=loras, prefix="lora_te_", model_state_dict=model_state_dict):
             yield
 
     @classmethod
@@ -107,7 +94,16 @@ class ModelPatcher:
         model: AnyModel,
         loras: Iterator[Tuple[LoRAModelRaw, float]],
         prefix: str,
-    ) -> None:
+        model_state_dict: Optional[Dict[str, torch.Tensor]] = None,
+    ) -> Generator[None, None, None]:
+        """
+        Apply one or more LoRAs to a model.
+
+        :param model: The model to patch.
+        :param loras: An iterator that returns the LoRA to patch in and its patch weight.
+        :param prefix: A string prefix that precedes keys used in the LoRAs weight layers.
+        :model_state_dict: Read-only copy of the model's state dict in CPU, for unpatching purposes.
+        """
         original_weights = {}
         try:
             with torch.no_grad():
@@ -133,19 +129,25 @@ class ModelPatcher:
                         dtype = module.weight.dtype
 
                         if module_key not in original_weights:
-                            original_weights[module_key] = module.weight.detach().to(device="cpu", copy=True)
+                            if model_state_dict is not None:  # we were provided with the CPU copy of the state dict
+                                original_weights[module_key] = model_state_dict[module_key + ".weight"]
+                            else:
+                                original_weights[module_key] = module.weight.detach().to(device="cpu", copy=True)
 
                         layer_scale = layer.alpha / layer.rank if (layer.alpha and layer.rank) else 1.0
 
                         # We intentionally move to the target device first, then cast. Experimentally, this was found to
                         # be significantly faster for 16-bit CPU tensors being moved to a CUDA device than doing the
                         # same thing in a single call to '.to(...)'.
-                        layer.to(device=device)
-                        layer.to(dtype=torch.float32)
+                        layer.to(device=device, non_blocking=TorchDevice.get_non_blocking(device))
+                        layer.to(dtype=torch.float32, non_blocking=TorchDevice.get_non_blocking(device))
                         # TODO(ryand): Using torch.autocast(...) over explicit casting may offer a speed benefit on CUDA
                         # devices here. Experimentally, it was found to be very slow on CPU. More investigation needed.
                         layer_weight = layer.get_weight(module.weight) * (lora_weight * layer_scale)
-                        layer.to(device=torch.device("cpu"))
+                        layer.to(
+                            device=TorchDevice.CPU_DEVICE,
+                            non_blocking=TorchDevice.get_non_blocking(TorchDevice.CPU_DEVICE),
+                        )
 
                         assert isinstance(layer_weight, torch.Tensor)  # mypy thinks layer_weight is a float|Any ??!
                         if module.weight.shape != layer_weight.shape:
@@ -154,7 +156,7 @@ class ModelPatcher:
                             layer_weight = layer_weight.reshape(module.weight.shape)
 
                         assert isinstance(layer_weight, torch.Tensor)  # mypy thinks layer_weight is a float|Any ??!
-                        module.weight += layer_weight.to(dtype=dtype)
+                        module.weight += layer_weight.to(dtype=dtype, non_blocking=TorchDevice.get_non_blocking(device))
 
             yield  # wait for context manager exit
 
@@ -162,7 +164,9 @@ class ModelPatcher:
             assert hasattr(model, "get_submodule")  # mypy not picking up fact that torch.nn.Module has get_submodule()
             with torch.no_grad():
                 for module_key, weight in original_weights.items():
-                    model.get_submodule(module_key).weight.copy_(weight)
+                    model.get_submodule(module_key).weight.copy_(
+                        weight, non_blocking=TorchDevice.get_non_blocking(weight.device)
+                    )
 
     @classmethod
     @contextmanager
@@ -333,7 +337,7 @@ class ONNXModelPatcher:
         loras: List[Tuple[LoRAModelRaw, float]],
         prefix: str,
     ) -> None:
-        from .models.base import IAIOnnxRuntimeModel
+        from invokeai.backend.models.base import IAIOnnxRuntimeModel
 
         if not isinstance(model, IAIOnnxRuntimeModel):
             raise Exception("Only IAIOnnxRuntimeModel models supported")
@@ -420,7 +424,7 @@ class ONNXModelPatcher:
         text_encoder: IAIOnnxRuntimeModel,
         ti_list: List[Tuple[str, Any]],
     ) -> Iterator[Tuple[CLIPTokenizer, TextualInversionManager]]:
-        from .models.base import IAIOnnxRuntimeModel
+        from invokeai.backend.models.base import IAIOnnxRuntimeModel
 
         if not isinstance(text_encoder, IAIOnnxRuntimeModel):
             raise Exception("Only IAIOnnxRuntimeModel models supported")

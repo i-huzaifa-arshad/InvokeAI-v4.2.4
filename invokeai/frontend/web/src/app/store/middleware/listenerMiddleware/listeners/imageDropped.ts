@@ -7,10 +7,22 @@ import {
   controlAdapterImageChanged,
   controlAdapterIsEnabledChanged,
 } from 'features/controlAdapters/store/controlAdaptersSlice';
+import {
+  caLayerImageChanged,
+  iiLayerImageChanged,
+  ipaLayerImageChanged,
+  rgLayerIPAdapterImageChanged,
+} from 'features/controlLayers/store/controlLayersSlice';
 import type { TypesafeDraggableData, TypesafeDroppableData } from 'features/dnd/types';
-import { imageSelected } from 'features/gallery/store/gallerySlice';
+import { isValidDrop } from 'features/dnd/util/isValidDrop';
+import {
+  imageSelected,
+  imageToCompareChanged,
+  isImageViewerOpenChanged,
+  selectionChanged,
+} from 'features/gallery/store/gallerySlice';
 import { fieldImageValueChanged } from 'features/nodes/store/nodesSlice';
-import { initialImageChanged, selectOptimalDimension } from 'features/parameters/store/generationSlice';
+import { selectOptimalDimension } from 'features/parameters/store/generationSlice';
 import { imagesApi } from 'services/api/endpoints/images';
 
 export const dndDropped = createAction<{
@@ -24,6 +36,9 @@ export const addImageDroppedListener = (startAppListening: AppStartListening) =>
     effect: async (action, { dispatch, getState }) => {
       const log = logger('dnd');
       const { activeData, overData } = action.payload;
+      if (!isValidDrop(overData, activeData)) {
+        return;
+      }
 
       if (activeData.payloadType === 'IMAGE_DTO') {
         log.debug({ activeData, overData }, 'Image dropped');
@@ -44,18 +59,7 @@ export const addImageDroppedListener = (startAppListening: AppStartListening) =>
         activeData.payload.imageDTO
       ) {
         dispatch(imageSelected(activeData.payload.imageDTO));
-        return;
-      }
-
-      /**
-       * Image dropped on initial image
-       */
-      if (
-        overData.actionType === 'SET_INITIAL_IMAGE' &&
-        activeData.payloadType === 'IMAGE_DTO' &&
-        activeData.payload.imageDTO
-      ) {
-        dispatch(initialImageChanged(activeData.payload.imageDTO));
+        dispatch(isImageViewerOpenChanged(true));
         return;
       }
 
@@ -78,6 +82,79 @@ export const addImageDroppedListener = (startAppListening: AppStartListening) =>
           controlAdapterIsEnabledChanged({
             id,
             isEnabled: true,
+          })
+        );
+        return;
+      }
+
+      /**
+       * Image dropped on Control Adapter Layer
+       */
+      if (
+        overData.actionType === 'SET_CA_LAYER_IMAGE' &&
+        activeData.payloadType === 'IMAGE_DTO' &&
+        activeData.payload.imageDTO
+      ) {
+        const { layerId } = overData.context;
+        dispatch(
+          caLayerImageChanged({
+            layerId,
+            imageDTO: activeData.payload.imageDTO,
+          })
+        );
+        return;
+      }
+
+      /**
+       * Image dropped on IP Adapter Layer
+       */
+      if (
+        overData.actionType === 'SET_IPA_LAYER_IMAGE' &&
+        activeData.payloadType === 'IMAGE_DTO' &&
+        activeData.payload.imageDTO
+      ) {
+        const { layerId } = overData.context;
+        dispatch(
+          ipaLayerImageChanged({
+            layerId,
+            imageDTO: activeData.payload.imageDTO,
+          })
+        );
+        return;
+      }
+
+      /**
+       * Image dropped on RG Layer IP Adapter
+       */
+      if (
+        overData.actionType === 'SET_RG_LAYER_IP_ADAPTER_IMAGE' &&
+        activeData.payloadType === 'IMAGE_DTO' &&
+        activeData.payload.imageDTO
+      ) {
+        const { layerId, ipAdapterId } = overData.context;
+        dispatch(
+          rgLayerIPAdapterImageChanged({
+            layerId,
+            ipAdapterId,
+            imageDTO: activeData.payload.imageDTO,
+          })
+        );
+        return;
+      }
+
+      /**
+       * Image dropped on II Layer Image
+       */
+      if (
+        overData.actionType === 'SET_II_LAYER_IMAGE' &&
+        activeData.payloadType === 'IMAGE_DTO' &&
+        activeData.payload.imageDTO
+      ) {
+        const { layerId } = overData.context;
+        dispatch(
+          iiLayerImageChanged({
+            layerId,
+            imageDTO: activeData.payload.imageDTO,
           })
         );
         return;
@@ -115,24 +192,18 @@ export const addImageDroppedListener = (startAppListening: AppStartListening) =>
       }
 
       /**
-       * TODO
-       * Image selection dropped on node image collection field
+       * Image selected for compare
        */
-      // if (
-      //   overData.actionType === 'SET_MULTI_NODES_IMAGE' &&
-      //   activeData.payloadType === 'IMAGE_DTO' &&
-      //   activeData.payload.imageDTO
-      // ) {
-      //   const { fieldName, nodeId } = overData.context;
-      //   dispatch(
-      //     fieldValueChanged({
-      //       nodeId,
-      //       fieldName,
-      //       value: [activeData.payload.imageDTO],
-      //     })
-      //   );
-      //   return;
-      // }
+      if (
+        overData.actionType === 'SELECT_FOR_COMPARE' &&
+        activeData.payloadType === 'IMAGE_DTO' &&
+        activeData.payload.imageDTO
+      ) {
+        const { imageDTO } = activeData.payload;
+        dispatch(imageToCompareChanged(imageDTO));
+        dispatch(isImageViewerOpenChanged(true));
+        return;
+      }
 
       /**
        * Image dropped on user board
@@ -150,6 +221,7 @@ export const addImageDroppedListener = (startAppListening: AppStartListening) =>
             board_id: boardId,
           })
         );
+        dispatch(selectionChanged([]));
         return;
       }
 
@@ -167,6 +239,7 @@ export const addImageDroppedListener = (startAppListening: AppStartListening) =>
             imageDTO,
           })
         );
+        dispatch(selectionChanged([]));
         return;
       }
 
@@ -182,6 +255,7 @@ export const addImageDroppedListener = (startAppListening: AppStartListening) =>
             board_id: boardId,
           })
         );
+        dispatch(selectionChanged([]));
         return;
       }
 
@@ -195,6 +269,7 @@ export const addImageDroppedListener = (startAppListening: AppStartListening) =>
             imageDTOs,
           })
         );
+        dispatch(selectionChanged([]));
         return;
       }
     },

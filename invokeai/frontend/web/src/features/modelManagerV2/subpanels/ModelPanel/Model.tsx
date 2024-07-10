@@ -4,8 +4,7 @@ import { useAppDispatch, useAppSelector } from 'app/store/storeHooks';
 import { setSelectedModelMode } from 'features/modelManagerV2/store/modelManagerV2Slice';
 import { ModelConvertButton } from 'features/modelManagerV2/subpanels/ModelPanel/ModelConvertButton';
 import { ModelEditButton } from 'features/modelManagerV2/subpanels/ModelPanel/ModelEditButton';
-import { addToast } from 'features/system/store/systemSlice';
-import { makeToast } from 'features/system/util/makeToast';
+import { toast } from 'features/toast/toast';
 import { useCallback } from 'react';
 import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
@@ -47,25 +46,19 @@ export const Model = () => {
         .then((payload) => {
           form.reset(payload, { keepDefaultValues: true });
           dispatch(setSelectedModelMode('view'));
-          dispatch(
-            addToast(
-              makeToast({
-                title: t('modelManager.modelUpdated'),
-                status: 'success',
-              })
-            )
-          );
+          toast({
+            id: 'MODEL_UPDATED',
+            title: t('modelManager.modelUpdated'),
+            status: 'success',
+          });
         })
         .catch((_) => {
           form.reset();
-          dispatch(
-            addToast(
-              makeToast({
-                title: t('modelManager.modelUpdateFailed'),
-                status: 'error',
-              })
-            )
-          );
+          toast({
+            id: 'MODEL_UPDATE_FAILED',
+            title: t('modelManager.modelUpdateFailed'),
+            status: 'error',
+          });
         });
     },
     [dispatch, data?.key, form, t, updateModel]
@@ -87,9 +80,9 @@ export const Model = () => {
     <Flex flexDir="column" gap={4}>
       <Flex alignItems="flex-start" gap={4}>
         <ModelImageUpload model_key={selectedModelKey} model_image={data.cover_image} />
-        <Flex flexDir="column" gap={1} flexGrow={1}>
+        <Flex flexDir="column" gap={1} flexGrow={1} minW={0}>
           <Flex gap={2}>
-            <Heading as="h2" fontSize="lg">
+            <Heading as="h2" fontSize="lg" noOfLines={1} wordBreak="break-all">
               {data.name}
             </Heading>
             <Spacer />
@@ -114,7 +107,7 @@ export const Model = () => {
             )}
           </Flex>
           {data.source && (
-            <Text variant="subtext">
+            <Text variant="subtext" noOfLines={1} wordBreak="break-all">
               {t('modelManager.source')}: {data?.source}
             </Text>
           )}

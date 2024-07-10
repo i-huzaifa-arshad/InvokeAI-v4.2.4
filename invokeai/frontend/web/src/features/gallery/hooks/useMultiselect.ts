@@ -18,7 +18,7 @@ export const useMultiselect = (imageDTO?: ImageDTO) => {
     [imageDTO?.image_name]
   );
   const isSelected = useAppSelector(selectIsSelected);
-  const isMultiSelectEnabled = useFeatureStatus('multiselect').isFeatureEnabled;
+  const isMultiSelectEnabled = useFeatureStatus('multiselect');
 
   const handleClick = useCallback(
     (e: MouseEvent<HTMLDivElement>) => {
@@ -36,6 +36,7 @@ export const useMultiselect = (imageDTO?: ImageDTO) => {
           shiftKey: e.shiftKey,
           ctrlKey: e.ctrlKey,
           metaKey: e.metaKey,
+          altKey: e.altKey,
         })
       );
     },

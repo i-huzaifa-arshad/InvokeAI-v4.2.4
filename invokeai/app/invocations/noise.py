@@ -4,18 +4,12 @@
 import torch
 from pydantic import field_validator
 
+from invokeai.app.invocations.baseinvocation import BaseInvocation, BaseInvocationOutput, invocation, invocation_output
 from invokeai.app.invocations.constants import LATENT_SCALE_FACTOR
 from invokeai.app.invocations.fields import FieldDescriptions, InputField, LatentsField, OutputField
 from invokeai.app.services.shared.invocation_context import InvocationContext
 from invokeai.app.util.misc import SEED_MAX
-
-from ...backend.util.devices import choose_torch_device, torch_dtype
-from .baseinvocation import (
-    BaseInvocation,
-    BaseInvocationOutput,
-    invocation,
-    invocation_output,
-)
+from invokeai.backend.util.devices import TorchDevice
 
 """
 Utilities
@@ -46,7 +40,7 @@ def get_noise(
             height // downsampling_factor,
             width // downsampling_factor,
         ],
-        dtype=torch_dtype(device),
+        dtype=TorchDevice.choose_torch_dtype(device=device),
         device=noise_device_type,
         generator=generator,
     ).to("cpu")
@@ -111,14 +105,14 @@ class NoiseInvocation(BaseInvocation):
 
     @field_validator("seed", mode="before")
     def modulo_seed(cls, v):
-        """Returns the seed modulo (SEED_MAX + 1) to ensure it is within the valid range."""
+        """Return the seed modulo (SEED_MAX + 1) to ensure it is within the valid range."""
         return v % (SEED_MAX + 1)
 
     def invoke(self, context: InvocationContext) -> NoiseOutput:
         noise = get_noise(
             width=self.width,
             height=self.height,
-            device=choose_torch_device(),
+            device=TorchDevice.choose_torch_device(),
             seed=self.seed,
             use_cpu=self.use_cpu,
         )

@@ -13,9 +13,14 @@ import {
 } from 'features/canvas/store/actions';
 import { $canvasBaseLayer, $tool } from 'features/canvas/store/canvasNanostore';
 import { isStagingSelector } from 'features/canvas/store/canvasSelectors';
-import { resetCanvas, resetCanvasView, setIsMaskEnabled, setLayer } from 'features/canvas/store/canvasSlice';
+import {
+  resetCanvas,
+  resetCanvasView,
+  setIsMaskEnabled,
+  setLayer,
+  setShouldShowBoundingBox,
+} from 'features/canvas/store/canvasSlice';
 import type { CanvasLayer } from 'features/canvas/store/canvasTypes';
-import { LAYER_NAMES_DICT } from 'features/canvas/store/canvasTypes';
 import { memo, useCallback, useMemo } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useTranslation } from 'react-i18next';
@@ -23,6 +28,8 @@ import {
   PiCopyBold,
   PiCrosshairSimpleBold,
   PiDownloadSimpleBold,
+  PiEyeBold,
+  PiEyeSlashBold,
   PiFloppyDiskBold,
   PiHandGrabbingBold,
   PiStackBold,
@@ -44,6 +51,7 @@ const IAICanvasToolbar = () => {
   const isStaging = useAppSelector(isStagingSelector);
   const { t } = useTranslation();
   const { isClipboardAPIAvailable } = useCopyImageToClipboard();
+  const shouldShowBoundingBox = useAppSelector((s) => s.canvas.shouldShowBoundingBox);
 
   const { getUploadButtonProps, getUploadInputProps } = useImageUploadButton({
     postUploadAction: { type: 'SET_CANVAS_INITIAL_IMAGE' },
@@ -59,6 +67,18 @@ const IAICanvasToolbar = () => {
       preventDefault: true,
     },
     []
+  );
+
+  useHotkeys(
+    'shift+h',
+    () => {
+      dispatch(setShouldShowBoundingBox(!shouldShowBoundingBox));
+    },
+    {
+      enabled: () => !isStaging,
+      preventDefault: true,
+    },
+    [shouldShowBoundingBox]
   );
 
   useHotkeys(
@@ -124,6 +144,10 @@ const IAICanvasToolbar = () => {
   const handleSelectMoveTool = useCallback(() => {
     $tool.set('move');
   }, []);
+
+  const handleSetShouldShowBoundingBox = useCallback(() => {
+    dispatch(setShouldShowBoundingBox(!shouldShowBoundingBox));
+  }, [dispatch, shouldShowBoundingBox]);
 
   const handleResetCanvasView = useCallback(
     (shouldScaleTo1 = false) => {
@@ -191,13 +215,20 @@ const IAICanvasToolbar = () => {
     [dispatch, isMaskEnabled]
   );
 
-  const value = useMemo(() => LAYER_NAMES_DICT.filter((o) => o.value === layer)[0], [layer]);
+  const layerOptions = useMemo<{ label: string; value: CanvasLayer }[]>(
+    () => [
+      { label: t('unifiedCanvas.base'), value: 'base' },
+      { label: t('unifiedCanvas.mask'), value: 'mask' },
+    ],
+    [t]
+  );
+  const layerValue = useMemo(() => layerOptions.filter((o) => o.value === layer)[0] ?? null, [layer, layerOptions]);
 
   return (
     <Flex alignItems="center" gap={2} flexWrap="wrap">
       <Tooltip label={`${t('unifiedCanvas.layer')} (Q)`}>
         <FormControl isDisabled={isStaging} w="5rem">
-          <Combobox value={value} options={LAYER_NAMES_DICT} onChange={handleChangeLayer} />
+          <Combobox value={layerValue} options={layerOptions} onChange={handleChangeLayer} />
         </FormControl>
       </Tooltip>
 
@@ -211,6 +242,13 @@ const IAICanvasToolbar = () => {
           icon={<PiHandGrabbingBold />}
           isChecked={tool === 'move' || isStaging}
           onClick={handleSelectMoveTool}
+        />
+        <IconButton
+          aria-label={`${shouldShowBoundingBox ? t('unifiedCanvas.hideBoundingBox') : t('unifiedCanvas.showBoundingBox')} (Shift + H)`}
+          tooltip={`${shouldShowBoundingBox ? t('unifiedCanvas.hideBoundingBox') : t('unifiedCanvas.showBoundingBox')} (Shift + H)`}
+          icon={shouldShowBoundingBox ? <PiEyeBold /> : <PiEyeSlashBold />}
+          onClick={handleSetShouldShowBoundingBox}
+          isDisabled={isStaging}
         />
         <IconButton
           aria-label={`${t('unifiedCanvas.resetView')} (R)`}

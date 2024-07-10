@@ -15,8 +15,10 @@ const baseDimensionConfig: NumericalParameterConfig = {
 };
 
 const initialConfigState: AppConfig = {
+  isLocal: true,
   shouldUpdateImagesOnConnect: false,
   shouldFetchMetadataFromApi: false,
+  allowPrivateBoards: false,
   disabledTabs: [],
   disabledFeatures: ['lightbox', 'faceRestore', 'batches'],
   disabledSDFeatures: ['variation', 'symmetry', 'hires', 'perlinNoise', 'noiseThreshold'],

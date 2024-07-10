@@ -5,7 +5,7 @@
         "reportBugLabel": "Segnala un errore",
         "settingsLabel": "Impostazioni",
         "img2img": "Immagine a Immagine",
-        "unifiedCanvas": "Tela unificata",
+        "unifiedCanvas": "Tela",
         "nodes": "Flussi di lavoro",
         "upload": "Caricamento",
         "load": "Carica",
@@ -45,7 +45,7 @@
         "outputs": "Risultati",
         "data": "Dati",
         "somethingWentWrong": "Qualcosa è andato storto",
-        "copyError": "$t(gallery.copy) Errore",
+        "copyError": "Errore $t(gallery.copy)",
         "input": "Ingresso",
         "notInstalled": "Non $t(common.installed)",
         "unknownError": "Errore sconosciuto",
@@ -74,7 +74,22 @@
         "file": "File",
         "toResolve": "Da risolvere",
         "add": "Aggiungi",
-        "loglevel": "Livello di log"
+        "loglevel": "Livello di log",
+        "beta": "Beta",
+        "positivePrompt": "Prompt positivo",
+        "negativePrompt": "Prompt negativo",
+        "selected": "Selezionato",
+        "goTo": "Vai a",
+        "editor": "Editor",
+        "tab": "Scheda",
+        "viewing": "Visualizza",
+        "viewingDesc": "Rivedi le immagini in un'ampia vista della galleria",
+        "editing": "Modifica",
+        "editingDesc": "Modifica nell'area Livelli di controllo",
+        "enabled": "Abilitato",
+        "disabled": "Disabilitato",
+        "comparingDesc": "Confronta due immagini",
+        "comparing": "Confronta"
     },
     "gallery": {
         "galleryImageSize": "Dimensione dell'immagine",
@@ -82,7 +97,9 @@
         "autoSwitchNewImages": "Passaggio automatico a nuove immagini",
         "loadMore": "Carica altro",
         "noImagesInGallery": "Nessuna immagine da visualizzare",
-        "deleteImage": "Elimina l'immagine",
+        "deleteImage_one": "Elimina l'immagine",
+        "deleteImage_many": "Elimina {{count}} immagini",
+        "deleteImage_other": "Elimina {{count}} immagini",
         "deleteImagePermanent": "Le immagini eliminate non possono essere ripristinate.",
         "deleteImageBin": "Le immagini eliminate verranno spostate nel cestino del tuo sistema operativo.",
         "assets": "Risorse",
@@ -109,14 +126,30 @@
         "bulkDownloadRequestedDesc": "La tua richiesta di download è in preparazione. L'operazione potrebbe richiedere alcuni istanti.",
         "bulkDownloadRequestFailed": "Problema durante la preparazione del download",
         "bulkDownloadFailed": "Scaricamento fallito",
-        "alwaysShowImageSizeBadge": "Mostra sempre le dimensioni dell'immagine"
+        "alwaysShowImageSizeBadge": "Mostra sempre le dimensioni dell'immagine",
+        "openInViewer": "Apri nel visualizzatore",
+        "selectForCompare": "Seleziona per il confronto",
+        "selectAnImageToCompare": "Seleziona un'immagine da confrontare",
+        "slider": "Cursore",
+        "sideBySide": "Fianco a Fianco",
+        "compareImage": "Immagine di confronto",
+        "viewerImage": "Immagine visualizzata",
+        "hover": "Al passaggio del mouse",
+        "swapImages": "Scambia le immagini",
+        "compareOptions": "Opzioni di confronto",
+        "stretchToFit": "Scala per adattare",
+        "exitCompare": "Esci dal confronto",
+        "compareHelp1": "Tieni premuto <Kbd>Alt</Kbd> mentre fai clic su un'immagine della galleria o usi i tasti freccia per cambiare l'immagine di confronto.",
+        "compareHelp2": "Premi <Kbd>M</Kbd> per scorrere le modalità di confronto.",
+        "compareHelp3": "Premi <Kbd>C</Kbd> per scambiare le immagini confrontate.",
+        "compareHelp4": "Premi <Kbd>Z</Kbd> o <Kbd>Esc</Kbd> per uscire."
     },
     "hotkeys": {
         "keyboardShortcuts": "Tasti di scelta rapida",
         "appHotkeys": "Applicazione",
         "generalHotkeys": "Generale",
         "galleryHotkeys": "Galleria",
-        "unifiedCanvasHotkeys": "Tela Unificata",
+        "unifiedCanvasHotkeys": "Tela",
         "invoke": {
             "title": "Invoke",
             "desc": "Genera un'immagine"
@@ -134,8 +167,8 @@
             "desc": "Apre e chiude il pannello delle opzioni"
         },
         "pinOptions": {
-            "title": "Appunta le opzioni",
-            "desc": "Blocca il pannello delle opzioni"
+            "title": "Fissa le opzioni",
+            "desc": "Fissa il pannello delle opzioni"
         },
         "toggleGallery": {
             "title": "Attiva/disattiva galleria",
@@ -178,8 +211,8 @@
             "desc": "Mostra le informazioni sui metadati dell'immagine corrente"
         },
         "sendToImageToImage": {
-            "title": "Invia a Immagine a Immagine",
-            "desc": "Invia l'immagine corrente a da Immagine a Immagine"
+            "title": "Invia a Generazione da immagine",
+            "desc": "Invia l'immagine corrente a Generazione da immagine"
         },
         "deleteImage": {
             "title": "Elimina immagine",
@@ -319,19 +352,23 @@
             "title": "Annulla e cancella"
         },
         "resetOptionsAndGallery": {
-            "title": "Ripristina Opzioni e Galleria",
-            "desc": "Reimposta le opzioni e i pannelli della galleria"
+            "title": "Ripristina le opzioni e la galleria",
+            "desc": "Reimposta i pannelli delle opzioni e della galleria"
         },
         "searchHotkeys": "Cerca tasti di scelta rapida",
         "noHotkeysFound": "Nessun tasto di scelta rapida trovato",
         "toggleOptionsAndGallery": {
             "desc": "Apre e chiude le opzioni e i pannelli della galleria",
-            "title": "Attiva/disattiva le Opzioni e la Galleria"
+            "title": "Attiva/disattiva le opzioni e la galleria"
         },
         "clearSearch": "Cancella ricerca",
         "remixImage": {
             "desc": "Utilizza tutti i parametri tranne il seme dell'immagine corrente",
             "title": "Remixa l'immagine"
+        },
+        "toggleViewer": {
+            "title": "Attiva/disattiva il visualizzatore di immagini",
+            "desc": "Passa dal visualizzatore immagini all'area di lavoro per la scheda corrente."
         }
     },
     "modelManager": {
@@ -361,12 +398,12 @@
         "convertToDiffusers": "Converti in Diffusori",
         "convertToDiffusersHelpText2": "Questo processo sostituirà la voce in Gestione Modelli con la versione Diffusori dello stesso modello.",
         "convertToDiffusersHelpText4": "Questo è un processo una tantum. Potrebbero essere necessari circa 30-60 secondi a seconda delle specifiche del tuo computer.",
-        "convertToDiffusersHelpText5": "Assicurati di avere spazio su disco sufficiente. I modelli generalmente variano tra 2 GB e 7 GB di dimensioni.",
+        "convertToDiffusersHelpText5": "Assicurati di avere spazio su disco sufficiente. I modelli generalmente variano tra 2 GB e 7 GB in dimensione.",
         "convertToDiffusersHelpText6": "Vuoi convertire questo modello?",
         "modelConverted": "Modello convertito",
         "alpha": "Alpha",
         "convertToDiffusersHelpText1": "Questo modello verrà convertito nel formato 🧨 Diffusori.",
-        "convertToDiffusersHelpText3": "Il file Checkpoint su disco verrà eliminato se si trova nella cartella principale di InvokeAI. Se si trova invece in una posizione personalizzata, NON verrà eliminato.",
+        "convertToDiffusersHelpText3": "Il file del modello su disco verrà eliminato se si trova nella cartella principale di InvokeAI. Se si trova invece in una posizione personalizzata, NON verrà eliminato.",
         "v2_base": "v2 (512px)",
         "v2_768": "v2 (768px)",
         "none": "nessuno",
@@ -443,7 +480,9 @@
         "noModelsInstalled": "Nessun modello installato",
         "hfTokenInvalidErrorMessage2": "Aggiornalo in ",
         "main": "Principali",
-        "noModelsInstalledDesc1": "Installa i modelli con"
+        "noModelsInstalledDesc1": "Installa i modelli con",
+        "ipAdapters": "Adattatori IP",
+        "noMatchingModels": "Nessun modello corrispondente"
     },
     "parameters": {
         "images": "Immagini",
@@ -467,8 +506,8 @@
         "scaledHeight": "Altezza ridimensionata",
         "infillMethod": "Metodo di riempimento",
         "tileSize": "Dimensione piastrella",
-        "sendToImg2Img": "Invia a Immagine a Immagine",
-        "sendToUnifiedCanvas": "Invia a Tela Unificata",
+        "sendToImg2Img": "Invia a Generazione da immagine",
+        "sendToUnifiedCanvas": "Invia alla Tela",
         "downloadImage": "Scarica l'immagine",
         "usePrompt": "Usa Prompt",
         "useSeed": "Usa Seme",
@@ -504,13 +543,24 @@
             "incompatibleBaseModelForControlAdapter": "Il modello dell'adattatore di controllo #{{number}} non è compatibile con il modello principale.",
             "missingNodeTemplate": "Modello di nodo mancante",
             "missingInputForField": "{{nodeLabel}} -> {{fieldLabel}} ingresso mancante",
-            "missingFieldTemplate": "Modello di campo mancante"
+            "missingFieldTemplate": "Modello di campo mancante",
+            "imageNotProcessedForControlAdapter": "L'immagine dell'adattatore di controllo #{{number}} non è stata elaborata",
+            "layer": {
+                "initialImageNoImageSelected": "Nessuna immagine iniziale selezionata",
+                "t2iAdapterIncompatibleDimensions": "L'adattatore T2I richiede che la dimensione dell'immagine sia un multiplo di {{multiple}}",
+                "controlAdapterNoModelSelected": "Nessun modello di adattatore di controllo selezionato",
+                "controlAdapterIncompatibleBaseModel": "Il modello base dell'adattatore di controllo non è compatibile",
+                "controlAdapterNoImageSelected": "Nessuna immagine dell'adattatore di controllo selezionata",
+                "controlAdapterImageNotProcessed": "Immagine dell'adattatore di controllo non elaborata",
+                "ipAdapterNoModelSelected": "Nessun adattatore IP selezionato",
+                "ipAdapterIncompatibleBaseModel": "Il modello base dell'adattatore IP non è compatibile",
+                "ipAdapterNoImageSelected": "Nessuna immagine dell'adattatore IP selezionata",
+                "rgNoPromptsOrIPAdapters": "Nessun prompt o adattatore IP",
+                "rgNoRegion": "Nessuna regione selezionata"
+            }
         },
         "useCpuNoise": "Usa la CPU per generare rumore",
         "iterations": "Iterazioni",
-        "iterationsWithCount_one": "{{count}} Iterazione",
-        "iterationsWithCount_many": "{{count}} Iterazioni",
-        "iterationsWithCount_other": "{{count}} Iterazioni",
         "isAllowedToUpscale": {
             "useX2Model": "L'immagine è troppo grande per l'ampliamento con il modello x4, utilizza il modello x2",
             "tooLarge": "L'immagine è troppo grande per l'ampliamento, seleziona un'immagine più piccola"
@@ -525,7 +575,15 @@
         "aspect": "Aspetto",
         "setToOptimalSizeTooLarge": "$t(parameters.setToOptimalSize) (potrebbe essere troppo grande)",
         "remixImage": "Remixa l'immagine",
-        "coherenceEdgeSize": "Dim. bordo"
+        "coherenceEdgeSize": "Dim. bordo",
+        "infillMosaicTileWidth": "Larghezza piastrella",
+        "infillMosaicMinColor": "Colore minimo",
+        "infillMosaicMaxColor": "Colore massimo",
+        "infillMosaicTileHeight": "Altezza piastrella",
+        "infillColorValue": "Colore di riempimento",
+        "globalSettings": "Impostazioni globali",
+        "globalPositivePromptPlaceholder": "Prompt positivo globale",
+        "globalNegativePromptPlaceholder": "Prompt negativo globale"
     },
     "settings": {
         "models": "Modelli",
@@ -550,7 +608,7 @@
         "intermediatesCleared_one": "Cancellata {{count}} immagine intermedia",
         "intermediatesCleared_many": "Cancellate {{count}} immagini intermedie",
         "intermediatesCleared_other": "Cancellate {{count}} immagini intermedie",
-        "clearIntermediatesDesc1": "La cancellazione delle immagini intermedie ripristinerà lo stato di Tela Unificata e ControlNet.",
+        "clearIntermediatesDesc1": "La cancellazione delle immagini intermedie ripristinerà lo stato della Tela e degli Adattatori di Controllo.",
         "intermediatesClearedFailed": "Problema con la cancellazione delle immagini intermedie",
         "clearIntermediatesWithCount_one": "Cancella {{count}} immagine intermedia",
         "clearIntermediatesWithCount_many": "Cancella {{count}} immagini intermedie",
@@ -566,28 +624,27 @@
         "imageCopied": "Immagine copiata",
         "imageNotLoadedDesc": "Impossibile trovare l'immagine",
         "canvasMerged": "Tela unita",
-        "sentToImageToImage": "Inviato a Immagine a Immagine",
-        "sentToUnifiedCanvas": "Inviato a Tela Unificata",
-        "parametersSet": "Parametri impostati",
-        "parametersNotSet": "Parametri non impostati",
+        "sentToImageToImage": "Inviato a Generazione da immagine",
+        "sentToUnifiedCanvas": "Inviato alla Tela",
+        "parametersNotSet": "Parametri non richiamati",
         "metadataLoadFailed": "Impossibile caricare i metadati",
         "serverError": "Errore del Server",
-        "connected": "Connesso al Server",
+        "connected": "Connesso al server",
         "canceled": "Elaborazione annullata",
         "uploadFailedInvalidUploadDesc": "Deve essere una singola immagine PNG o JPEG",
-        "parameterSet": "{{parameter}} impostato",
-        "parameterNotSet": "{{parameter}} non impostato",
+        "parameterSet": "Parametro richiamato",
+        "parameterNotSet": "Parametro non richiamato",
         "problemCopyingImage": "Impossibile copiare l'immagine",
-        "baseModelChangedCleared_one": "Il modello base è stato modificato, cancellato o disabilitato {{count}} sotto-modello incompatibile",
-        "baseModelChangedCleared_many": "Il modello base è stato modificato, cancellato o disabilitato {{count}} sotto-modelli incompatibili",
-        "baseModelChangedCleared_other": "Il modello base è stato modificato, cancellato o disabilitato {{count}} sotto-modelli incompatibili",
+        "baseModelChangedCleared_one": "Cancellato o disabilitato {{count}} sottomodello incompatibile",
+        "baseModelChangedCleared_many": "Cancellati o disabilitati {{count}} sottomodelli incompatibili",
+        "baseModelChangedCleared_other": "Cancellati o disabilitati {{count}} sottomodelli incompatibili",
         "imageSavingFailed": "Salvataggio dell'immagine non riuscito",
         "canvasSentControlnetAssets": "Tela inviata a ControlNet & Risorse",
         "problemCopyingCanvasDesc": "Impossibile copiare la tela",
         "loadedWithWarnings": "Flusso di lavoro caricato con avvisi",
         "canvasCopiedClipboard": "Tela copiata negli appunti",
         "maskSavedAssets": "Maschera salvata nelle risorse",
-        "problemDownloadingCanvas": "Problema durante il download della tela",
+        "problemDownloadingCanvas": "Problema durante lo scarico della tela",
         "problemMergingCanvas": "Problema nell'unione delle tele",
         "imageUploaded": "Immagine caricata",
         "addedToBoard": "Aggiunto alla bacheca",
@@ -620,7 +677,18 @@
         "uploadInitialImage": "Carica l'immagine iniziale",
         "problemDownloadingImage": "Impossibile scaricare l'immagine",
         "prunedQueue": "Coda ripulita",
-        "modelImportCanceled": "Importazione del modello annullata"
+        "modelImportCanceled": "Importazione del modello annullata",
+        "parameters": "Parametri",
+        "parameterSetDesc": "{{parameter}} richiamato",
+        "parameterNotSetDesc": "Impossibile richiamare {{parameter}}",
+        "parameterNotSetDescWithMessage": "Impossibile richiamare {{parameter}}: {{message}}",
+        "parametersSet": "Parametri richiamati",
+        "errorCopied": "Errore copiato",
+        "outOfMemoryError": "Errore di memoria esaurita",
+        "baseModelChanged": "Modello base modificato",
+        "sessionRef": "Sessione: {{sessionId}}",
+        "somethingWentWrong": "Qualcosa è andato storto",
+        "outOfMemoryErrorDesc": "Le impostazioni della generazione attuale superano la capacità del sistema. Modifica le impostazioni e riprova."
     },
     "tooltip": {
         "feature": {
@@ -636,7 +704,7 @@
         "layer": "Livello",
         "base": "Base",
         "mask": "Maschera",
-        "maskingOptions": "Opzioni di mascheramento",
+        "maskingOptions": "Opzioni maschera",
         "enableMask": "Abilita maschera",
         "preserveMaskedArea": "Mantieni area mascherata",
         "clearMask": "Cancella maschera (Shift+C)",
@@ -689,7 +757,10 @@
         "coherenceModeBoxBlur": "Sfocatura Box",
         "coherenceModeStaged": "Maschera espansa",
         "invertBrushSizeScrollDirection": "Inverti scorrimento per dimensione pennello",
-        "discardCurrent": "Scarta l'attuale"
+        "discardCurrent": "Scarta l'attuale",
+        "initialFitImageSize": "Adatta dimensione immagine al rilascio",
+        "hideBoundingBox": "Nascondi il rettangolo di selezione",
+        "showBoundingBox": "Mostra il rettangolo di selezione"
     },
     "accessibility": {
         "invokeProgressBar": "Barra di avanzamento generazione",
@@ -704,7 +775,8 @@
         "mode": "Modalità",
         "resetUI": "$t(accessibility.reset) l'Interfaccia Utente",
         "createIssue": "Segnala un problema",
-        "about": "Informazioni"
+        "about": "Informazioni",
+        "submitSupportTicket": "Invia ticket di supporto"
     },
     "nodes": {
         "zoomOutNodes": "Rimpicciolire",
@@ -749,7 +821,7 @@
         "workflowNotes": "Note",
         "versionUnknown": " Versione sconosciuta",
         "unableToValidateWorkflow": "Impossibile convalidare il flusso di lavoro",
-        "updateApp": "Aggiorna App",
+        "updateApp": "Aggiorna Applicazione",
         "unableToLoadWorkflow": "Impossibile caricare il flusso di lavoro",
         "updateNode": "Aggiorna nodo",
         "version": "Versione",
@@ -783,7 +855,7 @@
         "float": "In virgola mobile",
         "currentImageDescription": "Visualizza l'immagine corrente nell'editor dei nodi",
         "fieldTypesMustMatch": "I tipi di campo devono corrispondere",
-        "edge": "Bordo",
+        "edge": "Collegamento",
         "currentImage": "Immagine corrente",
         "integer": "Numero Intero",
         "inputMayOnlyHaveOneConnection": "L'ingresso può avere solo una connessione",
@@ -796,8 +868,8 @@
         "unableToUpdateNodes_other": "Impossibile aggiornare {{count}} nodi",
         "addLinearView": "Aggiungi alla vista Lineare",
         "unknownErrorValidatingWorkflow": "Errore sconosciuto durante la convalida del flusso di lavoro",
-        "collectionFieldType": "{{name}} Raccolta",
-        "collectionOrScalarFieldType": "{{name}} Raccolta|Scalare",
+        "collectionFieldType": "{{name}} (Raccolta)",
+        "collectionOrScalarFieldType": "{{name}} (Singola o Raccolta)",
         "nodeVersion": "Versione Nodo",
         "inputFieldTypeParseError": "Impossibile analizzare il tipo di campo di input {{node}}.{{field}} ({{message}})",
         "unsupportedArrayItemType": "Tipo di elemento dell'array non supportato \"{{type}}\"",
@@ -832,11 +904,23 @@
         "editMode": "Modifica nell'editor del flusso di lavoro",
         "resetToDefaultValue": "Ripristina il valore predefinito",
         "noFieldsViewMode": "Questo flusso di lavoro non ha campi selezionati da visualizzare. Visualizza il flusso di lavoro completo per configurare i valori.",
-        "edit": "Modifica"
+        "edit": "Modifica",
+        "graph": "Grafico",
+        "showEdgeLabelsHelp": "Mostra etichette sui collegamenti, che indicano i nodi collegati",
+        "showEdgeLabels": "Mostra le etichette del collegamento",
+        "cannotMixAndMatchCollectionItemTypes": "Impossibile combinare e abbinare i tipi di elementi della raccolta",
+        "noGraph": "Nessun grafico",
+        "missingNode": "Nodo di invocazione mancante",
+        "missingInvocationTemplate": "Modello di invocazione mancante",
+        "missingFieldTemplate": "Modello di campo mancante",
+        "singleFieldType": "{{name}} (Singola)",
+        "imageAccessError": "Impossibile trovare l'immagine {{image_name}}, ripristino delle impostazioni predefinite",
+        "boardAccessError": "Impossibile trovare la bacheca {{board_id}}, ripristino ai valori predefiniti",
+        "modelAccessError": "Impossibile trovare il modello {{key}}, ripristino ai valori predefiniti"
     },
     "boards": {
         "autoAddBoard": "Aggiungi automaticamente bacheca",
-        "menuItemAutoAdd": "Aggiungi automaticamente a questa Bacheca",
+        "menuItemAutoAdd": "Aggiungi automaticamente a questa bacheca",
         "cancel": "Annulla",
         "addBoard": "Aggiungi Bacheca",
         "bottomMessage": "L'eliminazione di questa bacheca e delle sue immagini ripristinerà tutte le funzionalità che le stanno attualmente utilizzando.",
@@ -848,7 +932,7 @@
         "myBoard": "Bacheca",
         "searchBoard": "Cerca bacheche ...",
         "noMatching": "Nessuna bacheca corrispondente",
-        "selectBoard": "Seleziona una Bacheca",
+        "selectBoard": "Seleziona una bacheca",
         "uncategorized": "Non categorizzato",
         "downloadBoard": "Scarica la bacheca",
         "deleteBoardOnly": "solo la Bacheca",
@@ -869,7 +953,7 @@
         "control": "Controllo",
         "crop": "Ritaglia",
         "depthMidas": "Profondità (Midas)",
-        "detectResolution": "Rileva risoluzione",
+        "detectResolution": "Rileva la risoluzione",
         "controlMode": "Modalità di controllo",
         "cannyDescription": "Canny rilevamento bordi",
         "depthZoe": "Profondità (Zoe)",
@@ -880,7 +964,7 @@
         "showAdvanced": "Mostra opzioni Avanzate",
         "bgth": "Soglia rimozione sfondo",
         "importImageFromCanvas": "Importa immagine dalla Tela",
-        "lineartDescription": "Converte l'immagine in lineart",
+        "lineartDescription": "Converte l'immagine in linea",
         "importMaskFromCanvas": "Importa maschera dalla Tela",
         "hideAdvanced": "Nascondi opzioni avanzate",
         "resetControlImage": "Reimposta immagine di controllo",
@@ -896,7 +980,7 @@
         "pidiDescription": "Elaborazione immagini PIDI",
         "fill": "Riempie",
         "colorMapDescription": "Genera una mappa dei colori dall'immagine",
-        "lineartAnimeDescription": "Elaborazione lineart in stile anime",
+        "lineartAnimeDescription": "Elaborazione linea in stile anime",
         "imageResolution": "Risoluzione dell'immagine",
         "colorMap": "Colore",
         "lowThreshold": "Soglia inferiore",
@@ -909,7 +993,7 @@
         "colorMapTileSize": "Dimensione piastrella",
         "mediapipeFaceDescription": "Rilevamento dei volti tramite Mediapipe",
         "hedDescription": "Rilevamento dei bordi nidificati olisticamente",
-        "setControlImageDimensions": "Imposta le dimensioni dell'immagine di controllo su L/A",
+        "setControlImageDimensions": "Copia le dimensioni in L/A (ottimizza per il modello)",
         "maxFaces": "Numero massimo di volti",
         "addT2IAdapter": "Aggiungi $t(common.t2iAdapter)",
         "addControlNet": "Aggiungi $t(common.controlNet)",
@@ -937,12 +1021,18 @@
         "controlnet": "$t(controlnet.controlAdapter_one) #{{number}} ($t(common.controlNet))",
         "mediapipeFace": "Mediapipe Volto",
         "ip_adapter": "$t(controlnet.controlAdapter_one) #{{number}} ($t(common.ipAdapter))",
-        "t2i_adapter": "$t(controlnet.controlAdapter_one) #{{number}} ($t(common.t2iAdapter))"
+        "t2i_adapter": "$t(controlnet.controlAdapter_one) #{{number}} ($t(common.t2iAdapter))",
+        "selectCLIPVisionModel": "Seleziona un modello CLIP Vision",
+        "ipAdapterMethod": "Metodo",
+        "full": "Completo",
+        "composition": "Solo la composizione",
+        "style": "Solo lo stile",
+        "beginEndStepPercentShort": "Inizio/Fine %",
+        "setControlImageDimensionsForce": "Copia le dimensioni in L/A (ignora il modello)"
     },
     "queue": {
         "queueFront": "Aggiungi all'inizio della coda",
         "queueBack": "Aggiungi alla coda",
-        "queueCountPrediction": "{{promptsCount}} prompt × {{iterations}} iterazioni -> {{count}} generazioni",
         "queue": "Coda",
         "status": "Stato",
         "pruneSucceeded": "Rimossi {{item_count}} elementi completati dalla coda",
@@ -979,7 +1069,7 @@
         "cancelBatchSucceeded": "Lotto annullato",
         "clearTooltip": "Annulla e cancella tutti gli elementi",
         "current": "Attuale",
-        "pauseTooltip": "Sospende l'elaborazione",
+        "pauseTooltip": "Sospendi l'elaborazione",
         "failed": "Falliti",
         "cancelItem": "Annulla l'elemento",
         "next": "Prossimo",
@@ -997,7 +1087,16 @@
         "graphFailedToQueue": "Impossibile mettere in coda il grafico",
         "batchFieldValues": "Valori Campi Lotto",
         "time": "Tempo",
-        "openQueue": "Apri coda"
+        "openQueue": "Apri coda",
+        "iterations_one": "Iterazione",
+        "iterations_many": "Iterazioni",
+        "iterations_other": "Iterazioni",
+        "prompts_one": "Prompt",
+        "prompts_many": "Prompt",
+        "prompts_other": "Prompt",
+        "generations_one": "Generazione",
+        "generations_many": "Generazioni",
+        "generations_other": "Generazioni"
     },
     "models": {
         "noMatchingModels": "Nessun modello corrispondente",
@@ -1345,13 +1444,13 @@
             ]
         },
         "seamlessTilingXAxis": {
-            "heading": "Asse X di piastrellatura senza cuciture",
+            "heading": "Piastrella senza giunte sull'asse X",
             "paragraphs": [
                 "Affianca senza soluzione di continuità un'immagine lungo l'asse orizzontale."
             ]
         },
         "seamlessTilingYAxis": {
-            "heading": "Asse Y di piastrellatura senza cuciture",
+            "heading": "Piastrella senza giunte sull'asse Y",
             "paragraphs": [
                 "Affianca senza soluzione di continuità un'immagine lungo l'asse verticale."
             ]
@@ -1379,6 +1478,12 @@
             "heading": "Dimensione del bordo",
             "paragraphs": [
                 "La dimensione del bordo del passaggio di coerenza."
+            ]
+        },
+        "ipAdapterMethod": {
+            "heading": "Metodo",
+            "paragraphs": [
+                "Metodo con cui applicare l'adattatore IP corrente."
             ]
         }
     },
@@ -1475,7 +1580,11 @@
         "name": "Nome",
         "updated": "Aggiornato",
         "projectWorkflows": "Flussi di lavoro del progetto",
-        "opened": "Aperto"
+        "opened": "Aperto",
+        "convertGraph": "Converti grafico",
+        "loadWorkflow": "$t(common.load) Flusso di lavoro",
+        "autoLayout": "Disposizione automatica",
+        "loadFromGraph": "Carica il flusso di lavoro dal grafico"
     },
     "app": {
         "storeNotInitialized": "Il negozio non è inizializzato"
@@ -1504,5 +1613,55 @@
         "compatibleEmbeddings": "Incorporamenti compatibili",
         "addPromptTrigger": "Aggiungi Trigger nel prompt",
         "noMatchingTriggers": "Nessun Trigger corrispondente"
+    },
+    "controlLayers": {
+        "opacityFilter": "Filtro opacità",
+        "deleteAll": "Cancella tutto",
+        "addLayer": "Aggiungi Livello",
+        "moveToFront": "Sposta in primo piano",
+        "moveToBack": "Sposta in fondo",
+        "moveForward": "Sposta avanti",
+        "moveBackward": "Sposta indietro",
+        "brushSize": "Dimensioni del pennello",
+        "globalMaskOpacity": "Opacità globale della maschera",
+        "autoNegative": "Auto Negativo",
+        "deletePrompt": "Cancella il prompt",
+        "debugLayers": "Debug dei Livelli",
+        "rectangle": "Rettangolo",
+        "maskPreviewColor": "Colore anteprima maschera",
+        "addPositivePrompt": "Aggiungi $t(common.positivePrompt)",
+        "addNegativePrompt": "Aggiungi $t(common.negativePrompt)",
+        "addIPAdapter": "Aggiungi $t(common.ipAdapter)",
+        "regionalGuidance": "Guida regionale",
+        "regionalGuidanceLayer": "$t(unifiedCanvas.layer) $t(controlLayers.regionalGuidance)",
+        "opacity": "Opacità",
+        "globalControlAdapter": "$t(controlnet.controlAdapter_one) Globale",
+        "globalControlAdapterLayer": "$t(controlnet.controlAdapter_one) - $t(unifiedCanvas.layer) Globale",
+        "globalIPAdapter": "$t(common.ipAdapter) Globale",
+        "globalIPAdapterLayer": "$t(common.ipAdapter) - $t(unifiedCanvas.layer) Globale",
+        "globalInitialImage": "Immagine iniziale",
+        "globalInitialImageLayer": "$t(controlLayers.globalInitialImage) - $t(unifiedCanvas.layer) Globale",
+        "clearProcessor": "Cancella processore",
+        "resetProcessor": "Ripristina il processore alle impostazioni predefinite",
+        "noLayersAdded": "Nessun livello aggiunto",
+        "resetRegion": "Reimposta la regione",
+        "controlLayers": "Livelli di controllo",
+        "layers_one": "Livello",
+        "layers_many": "Livelli",
+        "layers_other": "Livelli"
+    },
+    "ui": {
+        "tabs": {
+            "generation": "Generazione",
+            "generationTab": "$t(ui.tabs.generation) $t(common.tab)",
+            "canvas": "Tela",
+            "canvasTab": "$t(ui.tabs.canvas) $t(common.tab)",
+            "workflows": "Flussi di lavoro",
+            "workflowsTab": "$t(ui.tabs.workflows) $t(common.tab)",
+            "models": "Modelli",
+            "modelsTab": "$t(ui.tabs.models) $t(common.tab)",
+            "queue": "Coda",
+            "queueTab": "$t(ui.tabs.queue) $t(common.tab)"
+        }
     }
 }

@@ -1,4 +1,3 @@
-import type { SystemStyleObject } from '@invoke-ai/ui-library';
 import { Box, Flex, Spinner } from '@invoke-ai/ui-library';
 import { skipToken } from '@reduxjs/toolkit/query';
 import { createMemoizedSelector } from 'app/store/createMemoizedSelector';
@@ -13,9 +12,10 @@ import {
   controlAdapterImageChanged,
   selectControlAdaptersSlice,
 } from 'features/controlAdapters/store/controlAdaptersSlice';
+import { heightChanged, widthChanged } from 'features/controlLayers/store/controlLayersSlice';
 import type { TypesafeDraggableData, TypesafeDroppableData } from 'features/dnd/types';
 import { calculateNewSize } from 'features/parameters/components/ImageSize/calculateNewSize';
-import { heightChanged, selectOptimalDimension, widthChanged } from 'features/parameters/store/generationSlice';
+import { selectOptimalDimension } from 'features/parameters/store/generationSlice';
 import { activeTabNameSelector } from 'features/ui/store/uiSelectors';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -92,15 +92,16 @@ const ControlAdapterImagePreview = ({ isSmall, id }: Props) => {
       return;
     }
 
-    if (activeTabName === 'unifiedCanvas') {
+    if (activeTabName === 'canvas') {
       dispatch(setBoundingBoxDimensions({ width: controlImage.width, height: controlImage.height }, optimalDimension));
     } else {
+      const options = { updateAspectRatio: true, clamp: true };
       const { width, height } = calculateNewSize(
         controlImage.width / controlImage.height,
         optimalDimension * optimalDimension
       );
-      dispatch(widthChanged(width));
-      dispatch(heightChanged(height));
+      dispatch(widthChanged({ width, ...options }));
+      dispatch(heightChanged({ height, ...options }));
     }
   }, [controlImage, activeTabName, dispatch, optimalDimension]);
 
@@ -183,25 +184,25 @@ const ControlAdapterImagePreview = ({ isSmall, id }: Props) => {
         />
       </Box>
 
-      <>
-        <IAIDndImageIcon
-          onClick={handleResetControlImage}
-          icon={controlImage ? <PiArrowCounterClockwiseBold size={16} /> : undefined}
-          tooltip={t('controlnet.resetControlImage')}
-        />
-        <IAIDndImageIcon
-          onClick={handleSaveControlImage}
-          icon={controlImage ? <PiFloppyDiskBold size={16} /> : undefined}
-          tooltip={t('controlnet.saveControlImage')}
-          styleOverrides={saveControlImageStyleOverrides}
-        />
-        <IAIDndImageIcon
-          onClick={handleSetControlImageToDimensions}
-          icon={controlImage ? <PiRulerBold size={16} /> : undefined}
-          tooltip={t('controlnet.setControlImageDimensions')}
-          styleOverrides={setControlImageDimensionsStyleOverrides}
-        />
-      </>
+      {controlImage && (
+        <Flex position="absolute" flexDir="column" top={1} insetInlineEnd={1} gap={1}>
+          <IAIDndImageIcon
+            onClick={handleResetControlImage}
+            icon={<PiArrowCounterClockwiseBold size={16} />}
+            tooltip={t('controlnet.resetControlImage')}
+          />
+          <IAIDndImageIcon
+            onClick={handleSaveControlImage}
+            icon={<PiFloppyDiskBold size={16} />}
+            tooltip={t('controlnet.saveControlImage')}
+          />
+          <IAIDndImageIcon
+            onClick={handleSetControlImageToDimensions}
+            icon={<PiRulerBold size={16} />}
+            tooltip={t('controlnet.setControlImageDimensions')}
+          />
+        </Flex>
+      )}
 
       {pendingControlImages.includes(id) && (
         <Flex
@@ -224,6 +225,3 @@ const ControlAdapterImagePreview = ({ isSmall, id }: Props) => {
 };
 
 export default memo(ControlAdapterImagePreview);
-
-const saveControlImageStyleOverrides: SystemStyleObject = { mt: 6 };
-const setControlImageDimensionsStyleOverrides: SystemStyleObject = { mt: 12 };

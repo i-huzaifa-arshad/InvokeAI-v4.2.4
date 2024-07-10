@@ -1,11 +1,11 @@
 from builtins import float
-from typing import List, Literal, Union
+from typing import List, Literal, Optional, Union
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 from typing_extensions import Self
 
 from invokeai.app.invocations.baseinvocation import BaseInvocation, BaseInvocationOutput, invocation, invocation_output
-from invokeai.app.invocations.fields import FieldDescriptions, Input, InputField, OutputField, UIType
+from invokeai.app.invocations.fields import FieldDescriptions, InputField, OutputField, TensorField, UIType
 from invokeai.app.invocations.model import ModelIdentifierField
 from invokeai.app.invocations.primitives import ImageField
 from invokeai.app.invocations.util import validate_begin_end_step, validate_weights
@@ -23,12 +23,18 @@ class IPAdapterField(BaseModel):
     image: Union[ImageField, List[ImageField]] = Field(description="The IP-Adapter image prompt(s).")
     ip_adapter_model: ModelIdentifierField = Field(description="The IP-Adapter model to use.")
     image_encoder_model: ModelIdentifierField = Field(description="The name of the CLIP image encoder model.")
-    weight: Union[float, List[float]] = Field(default=1, description="The weight given to the ControlNet")
+    weight: Union[float, List[float]] = Field(default=1, description="The weight given to the IP-Adapter.")
+    target_blocks: List[str] = Field(default=[], description="The IP Adapter blocks to apply")
     begin_step_percent: float = Field(
         default=0, ge=0, le=1, description="When the IP-Adapter is first applied (% of total steps)"
     )
     end_step_percent: float = Field(
         default=1, ge=0, le=1, description="When the IP-Adapter is last applied (% of total steps)"
+    )
+    mask: Optional[TensorField] = Field(
+        default=None,
+        description="The bool mask associated with this IP-Adapter. Excluded regions should be set to False, included "
+        "regions should be set to True.",
     )
 
     @field_validator("weight")
@@ -52,7 +58,7 @@ class IPAdapterOutput(BaseInvocationOutput):
 CLIP_VISION_MODEL_MAP = {"ViT-H": "ip_adapter_sd_image_encoder", "ViT-G": "ip_adapter_sdxl_image_encoder"}
 
 
-@invocation("ip_adapter", title="IP-Adapter", tags=["ip_adapter", "control"], category="ip_adapter", version="1.2.2")
+@invocation("ip_adapter", title="IP-Adapter", tags=["ip_adapter", "control"], category="ip_adapter", version="1.4.1")
 class IPAdapterInvocation(BaseInvocation):
     """Collects IP-Adapter info to pass to other nodes."""
 
@@ -61,23 +67,28 @@ class IPAdapterInvocation(BaseInvocation):
     ip_adapter_model: ModelIdentifierField = InputField(
         description="The IP-Adapter model.",
         title="IP-Adapter Model",
-        input=Input.Direct,
         ui_order=-1,
         ui_type=UIType.IPAdapterModel,
     )
-    clip_vision_model: Literal["auto", "ViT-H", "ViT-G"] = InputField(
+    clip_vision_model: Literal["ViT-H", "ViT-G"] = InputField(
         description="CLIP Vision model to use. Overrides model settings. Mandatory for checkpoint models.",
-        default="auto",
+        default="ViT-H",
         ui_order=2,
     )
     weight: Union[float, List[float]] = InputField(
         default=1, description="The weight given to the IP-Adapter", title="Weight"
+    )
+    method: Literal["full", "style", "composition"] = InputField(
+        default="full", description="The method to apply the IP-Adapter"
     )
     begin_step_percent: float = InputField(
         default=0, ge=0, le=1, description="When the IP-Adapter is first applied (% of total steps)"
     )
     end_step_percent: float = InputField(
         default=1, ge=0, le=1, description="When the IP-Adapter is last applied (% of total steps)"
+    )
+    mask: Optional[TensorField] = InputField(
+        default=None, description="A mask defining the region that this IP-Adapter applies to."
     )
 
     @field_validator("weight")
@@ -96,18 +107,32 @@ class IPAdapterInvocation(BaseInvocation):
         ip_adapter_info = context.models.get_config(self.ip_adapter_model.key)
         assert isinstance(ip_adapter_info, (IPAdapterInvokeAIConfig, IPAdapterCheckpointConfig))
 
-        if self.clip_vision_model == "auto":
-            if isinstance(ip_adapter_info, IPAdapterInvokeAIConfig):
-                image_encoder_model_id = ip_adapter_info.image_encoder_model_id
-                image_encoder_model_name = image_encoder_model_id.split("/")[-1].strip()
-            else:
-                raise RuntimeError(
-                    "You need to set the appropriate CLIP Vision model for checkpoint IP Adapter models."
-                )
+        if isinstance(ip_adapter_info, IPAdapterInvokeAIConfig):
+            image_encoder_model_id = ip_adapter_info.image_encoder_model_id
+            image_encoder_model_name = image_encoder_model_id.split("/")[-1].strip()
         else:
             image_encoder_model_name = CLIP_VISION_MODEL_MAP[self.clip_vision_model]
 
         image_encoder_model = self._get_image_encoder(context, image_encoder_model_name)
+
+        if self.method == "style":
+            if ip_adapter_info.base == "sd-1":
+                target_blocks = ["up_blocks.1"]
+            elif ip_adapter_info.base == "sdxl":
+                target_blocks = ["up_blocks.0.attentions.1"]
+            else:
+                raise ValueError(f"Unsupported IP-Adapter base type: '{ip_adapter_info.base}'.")
+        elif self.method == "composition":
+            if ip_adapter_info.base == "sd-1":
+                target_blocks = ["down_blocks.2", "mid_block"]
+            elif ip_adapter_info.base == "sdxl":
+                target_blocks = ["down_blocks.2.attentions.1"]
+            else:
+                raise ValueError(f"Unsupported IP-Adapter base type: '{ip_adapter_info.base}'.")
+        elif self.method == "full":
+            target_blocks = ["block"]
+        else:
+            raise ValueError(f"Unexpected IP-Adapter method: '{self.method}'.")
 
         return IPAdapterOutput(
             ip_adapter=IPAdapterField(
@@ -115,8 +140,10 @@ class IPAdapterInvocation(BaseInvocation):
                 ip_adapter_model=self.ip_adapter_model,
                 image_encoder_model=ModelIdentifierField.from_config(image_encoder_model),
                 weight=self.weight,
+                target_blocks=target_blocks,
                 begin_step_percent=self.begin_step_percent,
                 end_step_percent=self.end_step_percent,
+                mask=self.mask,
             ),
         )
 

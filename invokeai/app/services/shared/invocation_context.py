@@ -1,9 +1,9 @@
-import threading
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Callable, Optional, Union
 
 from PIL.Image import Image
+from pydantic.networks import AnyHttpUrl
 from torch import Tensor
 
 from invokeai.app.invocations.constants import IMAGE_MODES
@@ -15,8 +15,15 @@ from invokeai.app.services.images.images_common import ImageDTO
 from invokeai.app.services.invocation_services import InvocationServices
 from invokeai.app.services.model_records.model_records_base import UnknownModelException
 from invokeai.app.util.step_callback import stable_diffusion_step_callback
-from invokeai.backend.model_manager.config import AnyModelConfig, BaseModelType, ModelFormat, ModelType, SubModelType
-from invokeai.backend.model_manager.load.load_base import LoadedModel
+from invokeai.backend.model_manager.config import (
+    AnyModel,
+    AnyModelConfig,
+    BaseModelType,
+    ModelFormat,
+    ModelType,
+    SubModelType,
+)
+from invokeai.backend.model_manager.load.load_base import LoadedModel, LoadedModelWithoutConfig
 from invokeai.backend.stable_diffusion.diffusers_pipeline import PipelineIntermediateState
 from invokeai.backend.stable_diffusion.diffusion.conditioning_data import ConditioningFieldData
 
@@ -180,9 +187,9 @@ class ImagesInterface(InvocationContextInterface):
         # If `metadata` is provided directly, use that. Else, use the metadata provided by `WithMetadata`, falling back to None.
         metadata_ = None
         if metadata:
-            metadata_ = metadata
-        elif isinstance(self._data.invocation, WithMetadata):
-            metadata_ = self._data.invocation.metadata
+            metadata_ = metadata.model_dump_json()
+        elif isinstance(self._data.invocation, WithMetadata) and self._data.invocation.metadata:
+            metadata_ = self._data.invocation.metadata.model_dump_json()
 
         # If `board_id` is provided directly, use that. Else, use the board provided by `WithBoard`, falling back to None.
         board_id_ = None
@@ -191,6 +198,14 @@ class ImagesInterface(InvocationContextInterface):
         elif isinstance(self._data.invocation, WithBoard) and self._data.invocation.board:
             board_id_ = self._data.invocation.board.board_id
 
+        workflow_ = None
+        if self._data.queue_item.workflow:
+            workflow_ = self._data.queue_item.workflow.model_dump_json()
+
+        graph_ = None
+        if self._data.queue_item.session.graph:
+            graph_ = self._data.queue_item.session.graph.model_dump_json()
+
         return self._services.images.create(
             image=image,
             is_intermediate=self._data.invocation.is_intermediate,
@@ -198,7 +213,8 @@ class ImagesInterface(InvocationContextInterface):
             board_id=board_id_,
             metadata=metadata_,
             image_origin=ResourceOrigin.INTERNAL,
-            workflow=self._data.queue_item.workflow,
+            workflow=workflow_,
+            graph=graph_,
             session_id=self._data.queue_item.session_id,
             node_id=self._data.invocation.id,
         )
@@ -244,6 +260,18 @@ class ImagesInterface(InvocationContextInterface):
             The image as an ImageDTO object.
         """
         return self._services.images.get_dto(image_name)
+
+    def get_path(self, image_name: str, thumbnail: bool = False) -> Path:
+        """Gets the internal path to an image or thumbnail.
+
+        Args:
+            image_name: The name of the image to get the path of.
+            thumbnail: Get the path of the thumbnail instead of the full image
+
+        Returns:
+            The local path of the image or thumbnail.
+        """
+        return self._services.images.get_path(image_name, thumbnail)
 
 
 class TensorsInterface(InvocationContextInterface):
@@ -300,8 +328,10 @@ class ConditioningInterface(InvocationContextInterface):
 
 
 class ModelsInterface(InvocationContextInterface):
+    """Common API for loading, downloading and managing models."""
+
     def exists(self, identifier: Union[str, "ModelIdentifierField"]) -> bool:
-        """Checks if a model exists.
+        """Check if a model exists.
 
         Args:
             identifier: The key or ModelField representing the model.
@@ -311,13 +341,13 @@ class ModelsInterface(InvocationContextInterface):
         """
         if isinstance(identifier, str):
             return self._services.model_manager.store.exists(identifier)
-
-        return self._services.model_manager.store.exists(identifier.key)
+        else:
+            return self._services.model_manager.store.exists(identifier.key)
 
     def load(
         self, identifier: Union[str, "ModelIdentifierField"], submodel_type: Optional[SubModelType] = None
     ) -> LoadedModel:
-        """Loads a model.
+        """Load a model.
 
         Args:
             identifier: The key or ModelField representing the model.
@@ -332,16 +362,16 @@ class ModelsInterface(InvocationContextInterface):
 
         if isinstance(identifier, str):
             model = self._services.model_manager.store.get_model(identifier)
-            return self._services.model_manager.load.load_model(model, submodel_type, self._data)
+            return self._services.model_manager.load.load_model(model, submodel_type)
         else:
             _submodel_type = submodel_type or identifier.submodel_type
             model = self._services.model_manager.store.get_model(identifier.key)
-            return self._services.model_manager.load.load_model(model, _submodel_type, self._data)
+            return self._services.model_manager.load.load_model(model, _submodel_type)
 
     def load_by_attrs(
         self, name: str, base: BaseModelType, type: ModelType, submodel_type: Optional[SubModelType] = None
     ) -> LoadedModel:
-        """Loads a model by its attributes.
+        """Load a model by its attributes.
 
         Args:
             name: Name of the model.
@@ -361,10 +391,10 @@ class ModelsInterface(InvocationContextInterface):
         if len(configs) > 1:
             raise ValueError(f"More than one model found with name {name}, base {base}, and type {type}")
 
-        return self._services.model_manager.load.load_model(configs[0], submodel_type, self._data)
+        return self._services.model_manager.load.load_model(configs[0], submodel_type)
 
     def get_config(self, identifier: Union[str, "ModelIdentifierField"]) -> AnyModelConfig:
-        """Gets a model's config.
+        """Get a model's config.
 
         Args:
             identifier: The key or ModelField representing the model.
@@ -374,11 +404,11 @@ class ModelsInterface(InvocationContextInterface):
         """
         if isinstance(identifier, str):
             return self._services.model_manager.store.get_model(identifier)
-
-        return self._services.model_manager.store.get_model(identifier.key)
+        else:
+            return self._services.model_manager.store.get_model(identifier.key)
 
     def search_by_path(self, path: Path) -> list[AnyModelConfig]:
-        """Searches for models by path.
+        """Search for models by path.
 
         Args:
             path: The path to search for.
@@ -395,7 +425,7 @@ class ModelsInterface(InvocationContextInterface):
         type: Optional[ModelType] = None,
         format: Optional[ModelFormat] = None,
     ) -> list[AnyModelConfig]:
-        """Searches for models by attributes.
+        """Search for models by attributes.
 
         Args:
             name: The name to search for (exact match).
@@ -414,6 +444,72 @@ class ModelsInterface(InvocationContextInterface):
             model_format=format,
         )
 
+    def download_and_cache_model(
+        self,
+        source: str | AnyHttpUrl,
+    ) -> Path:
+        """
+        Download the model file located at source to the models cache and return its Path.
+
+        This can be used to single-file install models and other resources of arbitrary types
+        which should not get registered with the database. If the model is already
+        installed, the cached path will be returned. Otherwise it will be downloaded.
+
+        Args:
+            source: A URL that points to the model, or a huggingface repo_id.
+
+        Returns:
+            Path to the downloaded model
+        """
+        return self._services.model_manager.install.download_and_cache_model(source=source)
+
+    def load_local_model(
+        self,
+        model_path: Path,
+        loader: Optional[Callable[[Path], AnyModel]] = None,
+    ) -> LoadedModelWithoutConfig:
+        """
+        Load the model file located at the indicated path
+
+        If a loader callable is provided, it will be invoked to load the model. Otherwise,
+        `safetensors.torch.load_file()` or `torch.load()` will be called to load the model.
+
+        Be aware that the LoadedModelWithoutConfig object has no `config` attribute
+
+        Args:
+            path: A model Path
+            loader: A Callable that expects a Path and returns a dict[str|int, Any]
+
+        Returns:
+            A LoadedModelWithoutConfig object.
+        """
+        return self._services.model_manager.load.load_model_from_path(model_path=model_path, loader=loader)
+
+    def load_remote_model(
+        self,
+        source: str | AnyHttpUrl,
+        loader: Optional[Callable[[Path], AnyModel]] = None,
+    ) -> LoadedModelWithoutConfig:
+        """
+        Download, cache, and load the model file located at the indicated URL or repo_id.
+
+        If the model is already downloaded, it will be loaded from the cache.
+
+        If the a loader callable is provided, it will be invoked to load the model. Otherwise,
+        `safetensors.torch.load_file()` or `torch.load()` will be called to load the model.
+
+        Be aware that the LoadedModelWithoutConfig object has no `config` attribute
+
+        Args:
+            source: A URL or huggingface repoid.
+            loader: A Callable that expects a Path and returns a dict[str|int, Any]
+
+        Returns:
+            A LoadedModelWithoutConfig object.
+        """
+        model_path = self._services.model_manager.install.download_and_cache_model(source=str(source))
+        return self._services.model_manager.load.load_model_from_path(model_path=model_path, loader=loader)
+
 
 class ConfigInterface(InvocationContextInterface):
     def get(self) -> InvokeAIAppConfig:
@@ -428,10 +524,10 @@ class ConfigInterface(InvocationContextInterface):
 
 class UtilInterface(InvocationContextInterface):
     def __init__(
-        self, services: InvocationServices, data: InvocationContextData, cancel_event: threading.Event
+        self, services: InvocationServices, data: InvocationContextData, is_canceled: Callable[[], bool]
     ) -> None:
         super().__init__(services, data)
-        self._cancel_event = cancel_event
+        self._is_canceled = is_canceled
 
     def is_canceled(self) -> bool:
         """Checks if the current session has been canceled.
@@ -439,7 +535,7 @@ class UtilInterface(InvocationContextInterface):
         Returns:
             True if the current session has been canceled, False if not.
         """
-        return self._cancel_event.is_set()
+        return self._is_canceled()
 
     def sd_step_callback(self, intermediate_state: PipelineIntermediateState, base_model: BaseModelType) -> None:
         """
@@ -514,7 +610,7 @@ class InvocationContext:
 def build_invocation_context(
     services: InvocationServices,
     data: InvocationContextData,
-    cancel_event: threading.Event,
+    is_canceled: Callable[[], bool],
 ) -> InvocationContext:
     """Builds the invocation context for a specific invocation execution.
 
@@ -531,7 +627,7 @@ def build_invocation_context(
     tensors = TensorsInterface(services=services, data=data)
     models = ModelsInterface(services=services, data=data)
     config = ConfigInterface(services=services, data=data)
-    util = UtilInterface(services=services, data=data, cancel_event=cancel_event)
+    util = UtilInterface(services=services, data=data, is_canceled=is_canceled)
     conditioning = ConditioningInterface(services=services, data=data)
     boards = BoardsInterface(services=services, data=data)
 

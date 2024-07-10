@@ -1,14 +1,14 @@
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from '@reduxjs/toolkit';
 import type { PersistConfig, RootState } from 'app/store/store';
-import { initialImageChanged } from 'features/parameters/store/generationSlice';
+import { workflowLoadRequested } from 'features/nodes/store/actions';
 
 import type { InvokeTabName } from './tabMap';
 import type { UIState } from './uiTypes';
 
 const initialUIState: UIState = {
-  _version: 1,
-  activeTab: 'txt2img',
+  _version: 2,
+  activeTab: 'generation',
   shouldShowImageDetails: false,
   shouldShowProgressInViewer: true,
   panels: {},
@@ -42,8 +42,8 @@ export const uiSlice = createSlice({
     },
   },
   extraReducers(builder) {
-    builder.addCase(initialImageChanged, (state) => {
-      state.activeTab = 'img2img';
+    builder.addCase(workflowLoadRequested, (state) => {
+      state.activeTab = 'workflows';
     });
   },
 });
@@ -63,6 +63,10 @@ export const selectUiSlice = (state: RootState) => state.ui;
 const migrateUIState = (state: any): any => {
   if (!('_version' in state)) {
     state._version = 1;
+  }
+  if (state._version === 1) {
+    state.activeTab = 'generation';
+    state._version = 2;
   }
   return state;
 };

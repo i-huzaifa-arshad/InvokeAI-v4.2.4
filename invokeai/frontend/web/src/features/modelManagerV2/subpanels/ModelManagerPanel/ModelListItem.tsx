@@ -4,8 +4,7 @@ import { useAppDispatch, useAppSelector } from 'app/store/storeHooks';
 import { setSelectedModelKey } from 'features/modelManagerV2/store/modelManagerV2Slice';
 import ModelBaseBadge from 'features/modelManagerV2/subpanels/ModelManagerPanel/ModelBaseBadge';
 import ModelFormatBadge from 'features/modelManagerV2/subpanels/ModelManagerPanel/ModelFormatBadge';
-import { addToast } from 'features/system/store/systemSlice';
-import { makeToast } from 'features/system/util/makeToast';
+import { toast } from 'features/toast/toast';
 import type { MouseEvent } from 'react';
 import { memo, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -53,25 +52,19 @@ const ModelListItem = (props: ModelListItemProps) => {
     deleteModel({ key: model.key })
       .unwrap()
       .then((_) => {
-        dispatch(
-          addToast(
-            makeToast({
-              title: `${t('modelManager.modelDeleted')}: ${model.name}`,
-              status: 'success',
-            })
-          )
-        );
+        toast({
+          id: 'MODEL_DELETED',
+          title: `${t('modelManager.modelDeleted')}: ${model.name}`,
+          status: 'success',
+        });
       })
       .catch((error) => {
         if (error) {
-          dispatch(
-            addToast(
-              makeToast({
-                title: `${t('modelManager.modelDeleteFailed')}: ${model.name}`,
-                status: 'error',
-              })
-            )
-          );
+          toast({
+            id: 'MODEL_DELETE_FAILED',
+            title: `${t('modelManager.modelDeleteFailed')}: ${model.name}`,
+            status: 'error',
+          });
         }
       });
     dispatch(setSelectedModelKey(null));
@@ -90,11 +83,13 @@ const ModelListItem = (props: ModelListItemProps) => {
       cursor="pointer"
       onClick={handleSelectModel}
     >
-      <Flex gap={2} w="full" h="full">
+      <Flex gap={2} w="full" h="full" minW={0}>
         <ModelImage image_url={model.cover_image} />
-        <Flex gap={1} alignItems="flex-start" flexDir="column" w="full">
+        <Flex gap={1} alignItems="flex-start" flexDir="column" w="full" minW={0}>
           <Flex gap={2} w="full" alignItems="flex-start">
-            <Text fontWeight="semibold">{model.name}</Text>
+            <Text fontWeight="semibold" noOfLines={1} wordBreak="break-all">
+              {model.name}
+            </Text>
             <Spacer />
           </Flex>
           <Text variant="subtext" noOfLines={1}>

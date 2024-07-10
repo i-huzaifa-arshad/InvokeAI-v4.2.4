@@ -24,19 +24,20 @@ import time
 from enum import Enum
 from typing import Literal, Optional, Type, TypeAlias, Union
 
+import diffusers
 import torch
 from diffusers.models.modeling_utils import ModelMixin
 from pydantic import BaseModel, ConfigDict, Discriminator, Field, Tag, TypeAdapter
 from typing_extensions import Annotated, Any, Dict
 
-from invokeai.app.invocations.constants import SCHEDULER_NAME_VALUES
 from invokeai.app.util.misc import uuid_string
-
-from ..raw_model import RawModel
+from invokeai.backend.model_hash.hash_validator import validate_hash
+from invokeai.backend.raw_model import RawModel
+from invokeai.backend.stable_diffusion.schedulers.schedulers import SCHEDULER_NAME_VALUES
 
 # ModelMixin is the base class for all diffusers and transformers models
 # RawModel is the InvokeAI wrapper class for ip_adapters, loras, textual_inversion and onnx runtime
-AnyModel = Union[ModelMixin, RawModel, torch.nn.Module]
+AnyModel = Union[ModelMixin, RawModel, torch.nn.Module, Dict[str, torch.Tensor], diffusers.DiffusionPipeline]
 
 
 class InvalidModelConfigException(Exception):
@@ -115,7 +116,7 @@ class SchedulerPredictionType(str, Enum):
 class ModelRepoVariant(str, Enum):
     """Various hugging face variants on the diffusers format."""
 
-    Default = ""  # model files without "fp16" or other qualifier - empty str
+    Default = ""  # model files without "fp16" or other qualifier
     FP16 = "fp16"
     FP32 = "fp32"
     ONNX = "onnx"
@@ -301,12 +302,12 @@ class MainConfigBase(ModelConfigBase):
     default_settings: Optional[MainModelDefaultSettings] = Field(
         description="Default settings for this model", default=None
     )
+    variant: ModelVariantType = ModelVariantType.Normal
 
 
 class MainCheckpointConfig(CheckpointConfigBase, MainConfigBase):
     """Model config for main checkpoint models."""
 
-    variant: ModelVariantType = ModelVariantType.Normal
     prediction_type: SchedulerPredictionType = SchedulerPredictionType.Epsilon
     upcast_attention: bool = False
 
@@ -448,4 +449,6 @@ class ModelConfigFactory(object):
             model.key = key
         if isinstance(model, CheckpointConfigBase) and timestamp is not None:
             model.converted_at = timestamp
+        if model:
+            validate_hash(model.hash)
         return model  # type: ignore

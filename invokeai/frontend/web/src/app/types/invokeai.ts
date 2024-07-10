@@ -65,6 +65,7 @@ export type AppConfig = {
    */
   shouldUpdateImagesOnConnect: boolean;
   shouldFetchMetadataFromApi: boolean;
+  allowPrivateBoards: boolean;
   disabledTabs: InvokeTabName[];
   disabledFeatures: AppFeature[];
   disabledSDFeatures: SDFeature[];
@@ -74,6 +75,7 @@ export type AppConfig = {
   maxUpscalePixels?: number;
   metadataFetchDebounce?: number;
   workflowFetchDebounce?: number;
+  isLocal?: boolean;
   sd: {
     defaultModel?: string;
     disabledControlNetModels: string[];

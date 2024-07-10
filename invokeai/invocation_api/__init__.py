@@ -11,7 +11,6 @@ from invokeai.app.invocations.baseinvocation import (
     invocation,
     invocation_output,
 )
-from invokeai.app.invocations.constants import SCHEDULER_NAME_VALUES
 from invokeai.app.invocations.fields import (
     BoardField,
     ColorField,
@@ -27,10 +26,10 @@ from invokeai.app.invocations.fields import (
     OutputField,
     UIComponent,
     UIType,
+    WithBoard,
     WithMetadata,
     WithWorkflow,
 )
-from invokeai.app.invocations.latent import SchedulerOutput
 from invokeai.app.invocations.metadata import MetadataItemField, MetadataItemOutput, MetadataOutput
 from invokeai.app.invocations.model import (
     CLIPField,
@@ -63,6 +62,7 @@ from invokeai.app.invocations.primitives import (
     StringCollectionOutput,
     StringOutput,
 )
+from invokeai.app.invocations.scheduler import SchedulerOutput
 from invokeai.app.services.boards.boards_common import BoardDTO
 from invokeai.app.services.config.config_default import InvokeAIAppConfig
 from invokeai.app.services.image_records.image_records_common import ImageCategory
@@ -75,9 +75,9 @@ from invokeai.backend.stable_diffusion.diffusers_pipeline import PipelineInterme
 from invokeai.backend.stable_diffusion.diffusion.conditioning_data import (
     BasicConditioningInfo,
     ConditioningFieldData,
-    ExtraConditioningInfo,
     SDXLConditioningInfo,
 )
+from invokeai.backend.stable_diffusion.schedulers.schedulers import SCHEDULER_NAME_VALUES
 from invokeai.backend.util.devices import CPU_DEVICE, CUDA_DEVICE, MPS_DEVICE, choose_precision, choose_torch_device
 from invokeai.version import __version__
 
@@ -105,9 +105,10 @@ __all__ = [
     "OutputField",
     "UIComponent",
     "UIType",
+    "WithBoard",
     "WithMetadata",
     "WithWorkflow",
-    # invokeai.app.invocations.latent
+    # invokeai.app.invocations.scheduler
     "SchedulerOutput",
     # invokeai.app.invocations.metadata
     "MetadataItemField",
@@ -149,7 +150,6 @@ __all__ = [
     # invokeai.backend.stable_diffusion.diffusion.conditioning_data
     "BasicConditioningInfo",
     "ConditioningFieldData",
-    "ExtraConditioningInfo",
     "SDXLConditioningInfo",
     # invokeai.backend.stable_diffusion.diffusers_pipeline
     "PipelineIntermediateState",
@@ -163,7 +163,7 @@ __all__ = [
     "BaseModelType",
     "ModelType",
     "SubModelType",
-    # invokeai.app.invocations.constants
+    # invokeai.backend.stable_diffusion.schedulers.schedulers
     "SCHEDULER_NAME_VALUES",
     # invokeai.version
     "__version__",

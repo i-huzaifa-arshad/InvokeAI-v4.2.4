@@ -1,14 +1,21 @@
 import { logger } from 'app/logging/logger';
 import type { AppStartListening } from 'app/store/middleware/listenerMiddleware';
+import { deepClone } from 'common/util/deepClone';
 import { parseify } from 'common/util/serialize';
 import { addImageToStagingArea } from 'features/canvas/store/canvasSlice';
-import { boardIdSelected, galleryViewChanged, imageSelected } from 'features/gallery/store/gallerySlice';
-import { IMAGE_CATEGORIES } from 'features/gallery/store/types';
-import { isImageOutput } from 'features/nodes/types/common';
+import {
+  boardIdSelected,
+  galleryViewChanged,
+  imageSelected,
+  isImageViewerOpenChanged,
+  offsetChanged,
+} from 'features/gallery/store/gallerySlice';
+import { $nodeExecutionStates, upsertExecutionState } from 'features/nodes/hooks/useExecutionState';
+import { zNodeStatus } from 'features/nodes/types/invocation';
 import { CANVAS_OUTPUT } from 'features/nodes/util/graph/constants';
 import { boardsApi } from 'services/api/endpoints/boards';
 import { imagesApi } from 'services/api/endpoints/images';
-import { imagesAdapter } from 'services/api/util';
+import { getCategories, getListImagesUrl } from 'services/api/util';
 import { socketInvocationComplete } from 'services/events/actions';
 
 // These nodes output an image, but do not actually *save* an image, so we don't want to handle the gallery logic on them
@@ -21,12 +28,12 @@ export const addInvocationCompleteEventListener = (startAppListening: AppStartLi
     actionCreator: socketInvocationComplete,
     effect: async (action, { dispatch, getState }) => {
       const { data } = action.payload;
-      log.debug({ data: parseify(data) }, `Invocation complete (${action.payload.data.node.type})`);
+      log.debug({ data: parseify(data) }, `Invocation complete (${data.invocation.type})`);
 
-      const { result, node, queue_batch_id } = data;
+      const { result, invocation_source_id } = data;
       // This complete event has an associated image output
-      if (isImageOutput(result) && !nodeTypeDenylist.includes(node.type)) {
-        const { image_name } = result.image;
+      if (data.result.type === 'image_output' && !nodeTypeDenylist.includes(data.invocation.type)) {
+        const { image_name } = data.result.image;
         const { canvas, gallery } = getState();
 
         // This populates the `getImageDTO` cache
@@ -40,29 +47,11 @@ export const addInvocationCompleteEventListener = (startAppListening: AppStartLi
         imageDTORequest.unsubscribe();
 
         // Add canvas images to the staging area
-        if (canvas.batchIds.includes(queue_batch_id) && data.source_node_id === CANVAS_OUTPUT) {
+        if (canvas.batchIds.includes(data.batch_id) && data.invocation_source_id === CANVAS_OUTPUT) {
           dispatch(addImageToStagingArea(imageDTO));
         }
 
         if (!imageDTO.is_intermediate) {
-          /**
-           * Cache updates for when an image result is received
-           * - add it to the no_board/images
-           */
-
-          dispatch(
-            imagesApi.util.updateQueryData(
-              'listImages',
-              {
-                board_id: imageDTO.board_id ?? 'none',
-                categories: IMAGE_CATEGORIES,
-              },
-              (draft) => {
-                imagesAdapter.addOne(draft, imageDTO);
-              }
-            )
-          );
-
           // update the total images for the board
           dispatch(
             boardsApi.util.updateQueryData('getBoardImagesTotal', imageDTO.board_id ?? 'none', (draft) => {
@@ -71,7 +60,18 @@ export const addInvocationCompleteEventListener = (startAppListening: AppStartLi
             })
           );
 
-          dispatch(imagesApi.util.invalidateTags([{ type: 'Board', id: imageDTO.board_id ?? 'none' }]));
+          dispatch(
+            imagesApi.util.invalidateTags([
+              { type: 'Board', id: imageDTO.board_id ?? 'none' },
+              {
+                type: 'ImageList',
+                id: getListImagesUrl({
+                  board_id: imageDTO.board_id ?? 'none',
+                  categories: getCategories(imageDTO),
+                }),
+              },
+            ])
+          );
 
           const { shouldAutoSwitch } = gallery;
 
@@ -91,6 +91,8 @@ export const addInvocationCompleteEventListener = (startAppListening: AppStartLi
               );
             }
 
+            dispatch(offsetChanged({ offset: 0 }));
+
             if (!imageDTO.board_id && gallery.selectedBoardId !== 'none') {
               dispatch(
                 boardIdSelected({
@@ -101,8 +103,19 @@ export const addInvocationCompleteEventListener = (startAppListening: AppStartLi
             }
 
             dispatch(imageSelected(imageDTO));
+            dispatch(isImageViewerOpenChanged(true));
           }
         }
+      }
+
+      const nes = deepClone($nodeExecutionStates.get()[invocation_source_id]);
+      if (nes) {
+        nes.status = zNodeStatus.enum.COMPLETED;
+        if (nes.progress !== null) {
+          nes.progress = 1;
+        }
+        nes.outputs.push(result);
+        upsertExecutionState(nes.nodeId, nes);
       }
     },
   });

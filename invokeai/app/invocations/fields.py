@@ -160,6 +160,8 @@ class FieldDescriptions:
     fp32 = "Whether or not to use full float32 precision"
     precision = "Precision to use"
     tiled = "Processing using overlapping tiles (reduce memory consumption)"
+    vae_tile_size = "The tile size for VAE tiling in pixels (image space). If set to 0, the default tile size for the "
+    "model will be used. Larger tile sizes generally produce better results at the cost of higher memory usage."
     detect_res = "Pixel resolution for detection"
     image_res = "Pixel resolution for output image"
     safe_mode = "Whether or not to use safe mode"
@@ -203,6 +205,12 @@ class DenoiseMaskField(BaseModel):
     gradient: bool = Field(default=False, description="Used for gradient inpainting")
 
 
+class TensorField(BaseModel):
+    """A tensor primitive field."""
+
+    tensor_name: str = Field(description="The name of a tensor.")
+
+
 class LatentsField(BaseModel):
     """A latents tensor primitive field"""
 
@@ -226,7 +234,11 @@ class ConditioningField(BaseModel):
     """A conditioning tensor primitive value"""
 
     conditioning_name: str = Field(description="The name of conditioning tensor")
-    # endregion
+    mask: Optional[TensorField] = Field(
+        default=None,
+        description="The mask associated with this conditioning tensor. Excluded regions should be set to False, "
+        "included regions should be set to True.",
+    )
 
 
 class MetadataField(RootModel[dict[str, Any]]):

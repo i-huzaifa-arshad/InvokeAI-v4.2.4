@@ -3,16 +3,13 @@
 import os
 import shutil
 from pathlib import Path
-from typing import Any, Dict, List
 
 import pytest
-from pydantic import BaseModel
 from requests.sessions import Session
 from requests_testadapter import TestAdapter, TestSession
 
 from invokeai.app.services.config import InvokeAIAppConfig
 from invokeai.app.services.download import DownloadQueueService, DownloadQueueServiceBase
-from invokeai.app.services.events.events_base import EventServiceBase
 from invokeai.app.services.model_install import ModelInstallService, ModelInstallServiceBase
 from invokeai.app.services.model_load import ModelLoadService, ModelLoadServiceBase
 from invokeai.app.services.model_manager import ModelManagerService, ModelManagerServiceBase
@@ -28,7 +25,7 @@ from invokeai.backend.model_manager.config import (
     ModelVariantType,
     VAEDiffusersConfig,
 )
-from invokeai.backend.model_manager.load import ModelCache, ModelConvertCache
+from invokeai.backend.model_manager.load import ModelCache
 from invokeai.backend.util.logging import InvokeAILogger
 from tests.backend.model_manager.model_metadata.metadata_examples import (
     HFTestLoraMetadata,
@@ -39,27 +36,7 @@ from tests.backend.model_manager.model_metadata.metadata_examples import (
     RepoHFModelJson1,
 )
 from tests.fixtures.sqlite_database import create_mock_sqlite_database
-
-
-class DummyEvent(BaseModel):
-    """Dummy Event to use with Dummy Event service."""
-
-    event_name: str
-    payload: Dict[str, Any]
-
-
-class DummyEventService(EventServiceBase):
-    """Dummy event service for testing."""
-
-    events: List[DummyEvent]
-
-    def __init__(self) -> None:
-        super().__init__()
-        self.events = []
-
-    def dispatch(self, event_name: str, payload: Any) -> None:
-        """Dispatch an event by appending it to self.events."""
-        self.events.append(DummyEvent(event_name=payload["event"], payload=payload["data"]))
+from tests.test_nodes import TestEventService
 
 
 # Create a temporary directory using the contents of `./data/invokeai_root` as the template
@@ -84,6 +61,13 @@ def embedding_file(mm2_model_files: Path) -> Path:
     return mm2_model_files / "test_embedding.safetensors"
 
 
+# Can be used to test diffusers model directory loading, but
+# the test file adds ~10MB of space.
+# @pytest.fixture
+# def vae_directory(mm2_model_files: Path) -> Path:
+#     return mm2_model_files / "taesdxl"
+
+
 @pytest.fixture
 def diffusers_dir(mm2_model_files: Path) -> Path:
     return mm2_model_files / "test-diffusers-main"
@@ -105,17 +89,15 @@ def mm2_download_queue(mm2_session: Session) -> DownloadQueueServiceBase:
 
 
 @pytest.fixture
-def mm2_loader(mm2_app_config: InvokeAIAppConfig, mm2_record_store: ModelRecordServiceBase) -> ModelLoadServiceBase:
+def mm2_loader(mm2_app_config: InvokeAIAppConfig) -> ModelLoadServiceBase:
     ram_cache = ModelCache(
         logger=InvokeAILogger.get_logger(),
         max_cache_size=mm2_app_config.ram,
         max_vram_cache_size=mm2_app_config.vram,
     )
-    convert_cache = ModelConvertCache(mm2_app_config.convert_cache_path)
     return ModelLoadService(
         app_config=mm2_app_config,
         ram_cache=ram_cache,
-        convert_cache=convert_cache,
     )
 
 
@@ -127,7 +109,7 @@ def mm2_installer(
 ) -> ModelInstallServiceBase:
     logger = InvokeAILogger.get_logger()
     db = create_mock_sqlite_database(mm2_app_config, logger)
-    events = DummyEventService()
+    events = TestEventService()
     store = ModelRecordServiceSQL(db)
 
     installer = ModelInstallService(
@@ -317,4 +299,45 @@ def mm2_session(embedding_file: Path, diffusers_dir: Path) -> Session:
                     },
                 ),
             )
+
+    for i in ["12345", "9999", "54321"]:
+        content = (
+            b"I am a safetensors file " + bytearray(i, "utf-8") + bytearray(32_000)
+        )  # for pause tests, must make content large
+        sess.mount(
+            f"http://www.civitai.com/models/{i}",
+            TestAdapter(
+                content,
+                headers={
+                    "Content-Length": len(content),
+                    "Content-Disposition": f'filename="mock{i}.safetensors"',
+                },
+            ),
+        )
+
+    sess.mount(
+        "http://www.huggingface.co/foo.txt",
+        TestAdapter(
+            content,
+            headers={
+                "Content-Length": len(content),
+                "Content-Disposition": 'filename="foo.safetensors"',
+            },
+        ),
+    )
+
+    # here are some malformed URLs to test
+    # missing the content length
+    sess.mount(
+        "http://www.civitai.com/models/missing",
+        TestAdapter(
+            b"Missing content length",
+            headers={
+                "Content-Disposition": 'filename="missing.txt"',
+            },
+        ),
+    )
+    # not found test
+    sess.mount("http://www.civitai.com/models/broken", TestAdapter(b"Not found", status=404))
+
     return sess

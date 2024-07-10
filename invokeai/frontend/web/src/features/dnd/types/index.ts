@@ -18,18 +18,43 @@ type BaseDropData = {
   id: string;
 };
 
-type CurrentImageDropData = BaseDropData & {
+export type CurrentImageDropData = BaseDropData & {
   actionType: 'SET_CURRENT_IMAGE';
-};
-
-type InitialImageDropData = BaseDropData & {
-  actionType: 'SET_INITIAL_IMAGE';
 };
 
 type ControlAdapterDropData = BaseDropData & {
   actionType: 'SET_CONTROL_ADAPTER_IMAGE';
   context: {
     id: string;
+  };
+};
+
+export type CALayerImageDropData = BaseDropData & {
+  actionType: 'SET_CA_LAYER_IMAGE';
+  context: {
+    layerId: string;
+  };
+};
+
+export type IPALayerImageDropData = BaseDropData & {
+  actionType: 'SET_IPA_LAYER_IMAGE';
+  context: {
+    layerId: string;
+  };
+};
+
+export type RGLayerIPAdapterImageDropData = BaseDropData & {
+  actionType: 'SET_RG_LAYER_IP_ADAPTER_IMAGE';
+  context: {
+    layerId: string;
+    ipAdapterId: string;
+  };
+};
+
+export type IILayerImageDropData = BaseDropData & {
+  actionType: 'SET_II_LAYER_IMAGE';
+  context: {
+    layerId: string;
   };
 };
 
@@ -54,14 +79,26 @@ export type RemoveFromBoardDropData = BaseDropData & {
   actionType: 'REMOVE_FROM_BOARD';
 };
 
+export type SelectForCompareDropData = BaseDropData & {
+  actionType: 'SELECT_FOR_COMPARE';
+  context: {
+    firstImageName?: string | null;
+    secondImageName?: string | null;
+  };
+};
+
 export type TypesafeDroppableData =
   | CurrentImageDropData
-  | InitialImageDropData
   | ControlAdapterDropData
   | CanvasInitialImageDropData
   | NodesImageDropData
   | AddToBoardDropData
-  | RemoveFromBoardDropData;
+  | RemoveFromBoardDropData
+  | CALayerImageDropData
+  | IPALayerImageDropData
+  | RGLayerIPAdapterImageDropData
+  | IILayerImageDropData
+  | SelectForCompareDropData;
 
 type BaseDragData = {
   id: string;
@@ -106,7 +143,7 @@ export type UseDraggableTypesafeReturnValue = Omit<ReturnType<typeof useOriginal
   over: TypesafeOver | null;
 };
 
-export interface TypesafeActive extends Omit<Active, 'data'> {
+interface TypesafeActive extends Omit<Active, 'data'> {
   data: React.MutableRefObject<TypesafeDraggableData | undefined>;
 }
 

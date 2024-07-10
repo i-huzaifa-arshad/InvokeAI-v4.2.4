@@ -1,12 +1,12 @@
 # Copyright (c) 2022 Kyle Schouviller (https://github.com/kyle0654)
 
-from pathlib import Path
 from typing import Literal, Optional
 
 import cv2
 import numpy
 from PIL import Image, ImageChops, ImageFilter, ImageOps
 
+from invokeai.app.invocations.baseinvocation import BaseInvocation, Classification, invocation
 from invokeai.app.invocations.constants import IMAGE_MODES
 from invokeai.app.invocations.fields import (
     ColorField,
@@ -21,8 +21,6 @@ from invokeai.app.services.image_records.image_records_common import ImageCatego
 from invokeai.app.services.shared.invocation_context import InvocationContext
 from invokeai.backend.image_util.invisible_watermark import InvisibleWatermark
 from invokeai.backend.image_util.safety_checker import SafetyChecker
-
-from .baseinvocation import BaseInvocation, Classification, invocation
 
 
 @invocation("show_image", title="Show Image", tags=["image"], category="image", version="1.0.1")
@@ -504,7 +502,7 @@ class ImageInverseLerpInvocation(BaseInvocation, WithMetadata, WithBoard):
     title="Blur NSFW Image",
     tags=["image", "nsfw"],
     category="image",
-    version="1.2.2",
+    version="1.2.3",
 )
 class ImageNSFWBlurInvocation(BaseInvocation, WithMetadata, WithBoard):
     """Add blur to NSFW-flagged images"""
@@ -516,22 +514,11 @@ class ImageNSFWBlurInvocation(BaseInvocation, WithMetadata, WithBoard):
 
         logger = context.logger
         logger.debug("Running NSFW checker")
-        if SafetyChecker.has_nsfw_concept(image):
-            logger.info("A potentially NSFW image has been detected. Image will be blurred.")
-            blurry_image = image.filter(filter=ImageFilter.GaussianBlur(radius=32))
-            caution = self._get_caution_img()
-            blurry_image.paste(caution, (0, 0), caution)
-            image = blurry_image
+        image = SafetyChecker.blur_if_nsfw(image)
 
         image_dto = context.images.save(image=image)
 
         return ImageOutput.build(image_dto)
-
-    def _get_caution_img(self) -> Image.Image:
-        import invokeai.app.assets.images as image_assets
-
-        caution = Image.open(Path(image_assets.__path__[0]) / "caution.png")
-        return caution.resize((caution.width // 2, caution.height // 2))
 
 
 @invocation(
