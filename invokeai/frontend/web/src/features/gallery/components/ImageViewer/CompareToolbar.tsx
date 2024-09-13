@@ -10,6 +10,7 @@ import {
   UnorderedList,
 } from '@invoke-ai/ui-library';
 import { useAppDispatch, useAppSelector } from 'app/store/storeHooks';
+import { selectComparisonFit, selectComparisonMode } from 'features/gallery/store/gallerySelectors';
 import {
   comparedImagesSwapped,
   comparisonFitChanged,
@@ -20,13 +21,13 @@ import {
 import { memo, useCallback } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { Trans, useTranslation } from 'react-i18next';
-import { PiArrowsOutBold, PiQuestion, PiSwapBold, PiXBold } from 'react-icons/pi';
+import { PiArrowsOutBold, PiQuestion, PiSwapBold } from 'react-icons/pi';
 
 export const CompareToolbar = memo(() => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
-  const comparisonMode = useAppSelector((s) => s.gallery.comparisonMode);
-  const comparisonFit = useAppSelector((s) => s.gallery.comparisonFit);
+  const comparisonMode = useAppSelector(selectComparisonMode);
+  const comparisonFit = useAppSelector(selectComparisonFit);
   const setComparisonModeSlider = useCallback(() => {
     dispatch(comparisonModeChanged('slider'));
   }, [dispatch]);
@@ -103,15 +104,17 @@ export const CompareToolbar = memo(() => {
         <Flex gap={2} marginInlineStart="auto" alignItems="center">
           <Tooltip label={<CompareHelp />}>
             <Flex alignItems="center">
-              <Icon boxSize={8} color="base.500" as={PiQuestion} lineHeight={0} />
+              <Icon boxSize={6} color="base.500" as={PiQuestion} lineHeight={0} />
             </Flex>
           </Tooltip>
-          <IconButton
-            icon={<PiXBold />}
+          <Button
+            variant="ghost"
             aria-label={`${t('gallery.exitCompare')} (Esc)`}
             tooltip={`${t('gallery.exitCompare')} (Esc)`}
             onClick={exitCompare}
-          />
+          >
+            {t('gallery.exitCompare')}
+          </Button>
         </Flex>
       </Flex>
     </Flex>

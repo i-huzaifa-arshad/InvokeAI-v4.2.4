@@ -19,7 +19,7 @@ from invokeai.app.invocations.model import CLIPField
 from invokeai.app.invocations.primitives import ConditioningOutput
 from invokeai.app.services.shared.invocation_context import InvocationContext
 from invokeai.app.util.ti_utils import generate_ti_list
-from invokeai.backend.lora import LoRAModelRaw
+from invokeai.backend.lora.lora_model_raw import LoRAModelRaw
 from invokeai.backend.model_patcher import ModelPatcher
 from invokeai.backend.stable_diffusion.diffusion.conditioning_data import (
     BasicConditioningInfo,
@@ -55,7 +55,6 @@ class CompelInvocation(BaseInvocation):
     clip: CLIPField = InputField(
         title="CLIP",
         description=FieldDescriptions.clip,
-        input=Input.Connection,
     )
     mask: Optional[TensorField] = InputField(
         default=None, description="A mask defining the region that this conditioning prompt applies to."
@@ -80,12 +79,12 @@ class CompelInvocation(BaseInvocation):
 
         with (
             # apply all patches while the model is on the target device
-            text_encoder_info.model_on_device() as (model_state_dict, text_encoder),
+            text_encoder_info.model_on_device() as (cached_weights, text_encoder),
             tokenizer_info as tokenizer,
             ModelPatcher.apply_lora_text_encoder(
                 text_encoder,
                 loras=_lora_loader(),
-                model_state_dict=model_state_dict,
+                cached_weights=cached_weights,
             ),
             # Apply CLIP Skip after LoRA to prevent LoRA application from failing on skipped layers.
             ModelPatcher.apply_clip_skip(text_encoder, self.clip.skipped_layers),
@@ -175,13 +174,13 @@ class SDXLPromptInvocationBase:
 
         with (
             # apply all patches while the model is on the target device
-            text_encoder_info.model_on_device() as (state_dict, text_encoder),
+            text_encoder_info.model_on_device() as (cached_weights, text_encoder),
             tokenizer_info as tokenizer,
             ModelPatcher.apply_lora(
                 text_encoder,
                 loras=_lora_loader(),
                 prefix=lora_prefix,
-                model_state_dict=state_dict,
+                cached_weights=cached_weights,
             ),
             # Apply CLIP Skip after LoRA to prevent LoRA application from failing on skipped layers.
             ModelPatcher.apply_clip_skip(text_encoder, clip_field.skipped_layers),

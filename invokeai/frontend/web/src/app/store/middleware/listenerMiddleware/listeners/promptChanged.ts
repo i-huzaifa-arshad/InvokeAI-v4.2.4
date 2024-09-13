@@ -1,6 +1,6 @@
 import { isAnyOf } from '@reduxjs/toolkit';
 import type { AppStartListening } from 'app/store/middleware/listenerMiddleware';
-import { positivePromptChanged } from 'features/controlLayers/store/controlLayersSlice';
+import { positivePromptChanged } from 'features/controlLayers/store/paramsSlice';
 import {
   combinatorialToggled,
   isErrorChanged,
@@ -11,15 +11,20 @@ import {
   promptsChanged,
 } from 'features/dynamicPrompts/store/dynamicPromptsSlice';
 import { getShouldProcessPrompt } from 'features/dynamicPrompts/util/getShouldProcessPrompt';
+import { getPresetModifiedPrompts } from 'features/nodes/util/graph/graphBuilderUtils';
+import { activeStylePresetIdChanged } from 'features/stylePresets/store/stylePresetSlice';
+import { stylePresetsApi } from 'services/api/endpoints/stylePresets';
 import { utilitiesApi } from 'services/api/endpoints/utilities';
-import { socketConnected } from 'services/events/actions';
+import { socketConnected } from 'services/events/setEventListeners';
 
 const matcher = isAnyOf(
   positivePromptChanged,
   combinatorialToggled,
   maxPromptsChanged,
   maxPromptsReset,
-  socketConnected
+  socketConnected,
+  activeStylePresetIdChanged,
+  stylePresetsApi.endpoints.listStylePresets.matchFulfilled
 );
 
 export const addDynamicPromptsListener = (startAppListening: AppStartListening) => {
@@ -28,7 +33,7 @@ export const addDynamicPromptsListener = (startAppListening: AppStartListening) 
     effect: async (action, { dispatch, getState, cancelActiveListeners, delay }) => {
       cancelActiveListeners();
       const state = getState();
-      const { positivePrompt } = state.controlLayers.present;
+      const { positivePrompt } = getPresetModifiedPrompts(state);
       const { maxPrompts } = state.dynamicPrompts;
 
       if (state.config.disabledFeatures.includes('dynamicPrompting')) {

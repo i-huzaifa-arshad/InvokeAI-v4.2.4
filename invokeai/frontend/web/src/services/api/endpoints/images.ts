@@ -1,5 +1,5 @@
 import { getStore } from 'app/store/nanostores/store';
-import type { JSONObject } from 'common/types';
+import type { SerializableObject } from 'common/types';
 import type { BoardId } from 'features/gallery/store/types';
 import { ASSETS_CATEGORIES, IMAGE_CATEGORIES } from 'features/gallery/store/types';
 import type { components, paths } from 'services/api/schema';
@@ -52,7 +52,7 @@ export const imagesApi = api.injectEndpoints({
           'FetchOnReconnect',
         ];
       },
-      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+      onQueryStarted(_, { dispatch, queryFulfilled }) {
         // Populate the getImageDTO cache with these images. This makes image selection smoother, because it doesn't
         // need to re-fetch image data when the user selects an image. The getImageDTO cache keeps data for the default
         // of 60s, so this data won't stick around too long.
@@ -75,7 +75,7 @@ export const imagesApi = api.injectEndpoints({
       query: (image_name) => ({ url: buildImagesUrl(`i/${image_name}`) }),
       providesTags: (result, error, image_name) => [{ type: 'Image', id: image_name }],
     }),
-    getImageMetadata: build.query<JSONObject | undefined, string>({
+    getImageMetadata: build.query<SerializableObject | undefined, string>({
       query: (image_name) => ({ url: buildImagesUrl(`i/${image_name}/metadata`) }),
       providesTags: (result, error, image_name) => [{ type: 'ImageMetadata', id: image_name }],
     }),
@@ -102,6 +102,10 @@ export const imagesApi = api.injectEndpoints({
           },
           {
             type: 'Board',
+            id: boardId,
+          },
+          {
+            type: 'BoardImagesTotal',
             id: boardId,
           },
         ];
@@ -136,6 +140,10 @@ export const imagesApi = api.injectEndpoints({
               type: 'Board',
               id: boardId,
             },
+            {
+              type: 'BoardImagesTotal',
+              id: boardId,
+            },
           ];
 
           return tags;
@@ -154,7 +162,7 @@ export const imagesApi = api.injectEndpoints({
       }),
       invalidatesTags: (result, error, { imageDTO }) => {
         const categories = getCategories(imageDTO);
-        const boardId = imageDTO.board_id ?? undefined;
+        const boardId = imageDTO.board_id ?? 'none';
 
         return [
           { type: 'Image', id: imageDTO.image_name },
@@ -167,6 +175,10 @@ export const imagesApi = api.injectEndpoints({
           },
           {
             type: 'Board',
+            id: boardId,
+          },
+          {
+            type: 'BoardImagesTotal',
             id: boardId,
           },
         ];
@@ -258,7 +270,7 @@ export const imagesApi = api.injectEndpoints({
         session_id?: string;
         board_id?: string;
         crop_visible?: boolean;
-        metadata?: JSONObject;
+        metadata?: SerializableObject;
       }
     >({
       query: ({ file, image_category, is_intermediate, session_id, board_id, crop_visible, metadata }) => {
@@ -298,6 +310,10 @@ export const imagesApi = api.injectEndpoints({
           },
           {
             type: 'Board',
+            id: boardId,
+          },
+          {
+            type: 'BoardImagesTotal',
             id: boardId,
           },
         ];
@@ -362,6 +378,14 @@ export const imagesApi = api.injectEndpoints({
           },
           { type: 'Board', id: board_id },
           { type: 'Board', id: imageDTO.board_id ?? 'none' },
+          {
+            type: 'BoardImagesTotal',
+            id: imageDTO.board_id ?? 'none',
+          },
+          {
+            type: 'BoardImagesTotal',
+            id: board_id,
+          },
         ];
       },
     }),
@@ -393,6 +417,11 @@ export const imagesApi = api.injectEndpoints({
           },
           { type: 'Board', id: imageDTO.board_id ?? 'none' },
           { type: 'Board', id: 'none' },
+          {
+            type: 'BoardImagesTotal',
+            id: imageDTO.board_id ?? 'none',
+          },
+          { type: 'BoardImagesTotal', id: 'none' },
         ];
       },
     }),
@@ -429,11 +458,19 @@ export const imagesApi = api.injectEndpoints({
             }),
           });
           tags.push({ type: 'Board', id: imageDTOs[0].board_id ?? 'none' });
+          tags.push({
+            type: 'BoardImagesTotal',
+            id: imageDTOs[0].board_id ?? 'none',
+          });
         }
         for (const imageDTO of imageDTOs) {
           tags.push({ type: 'Image', id: imageDTO.image_name });
         }
         tags.push({ type: 'Board', id: board_id });
+        tags.push({
+          type: 'BoardImagesTotal',
+          id: board_id ?? 'none',
+        });
         return tags;
       },
     }),
@@ -469,6 +506,10 @@ export const imagesApi = api.injectEndpoints({
               categories: getCategories(imageDTOs[0]),
             }),
           });
+          tags.push({
+            type: 'BoardImagesTotal',
+            id: 'none',
+          });
         }
 
         result?.removed_image_names.forEach((image_name) => {
@@ -480,6 +521,10 @@ export const imagesApi = api.injectEndpoints({
           }
           tags.push({ type: 'Image', id: image_name });
           tags.push({ type: 'Board', id: board_id });
+          tags.push({
+            type: 'BoardImagesTotal',
+            id: board_id ?? 'none',
+          });
         });
 
         return tags;
@@ -504,6 +549,7 @@ export const imagesApi = api.injectEndpoints({
 export const {
   useGetIntermediatesCountQuery,
   useListImagesQuery,
+  useGetImageDTOQuery,
   useGetImageMetadataQuery,
   useGetImageWorkflowQuery,
   useLazyGetImageWorkflowQuery,
@@ -511,8 +557,6 @@ export const {
   useClearIntermediatesMutation,
   useAddImagesToBoardMutation,
   useRemoveImagesFromBoardMutation,
-  useAddImageToBoardMutation,
-  useRemoveImageFromBoardMutation,
   useChangeImageIsIntermediateMutation,
   useDeleteBoardAndImagesMutation,
   useDeleteBoardMutation,
@@ -520,10 +564,6 @@ export const {
   useUnstarImagesMutation,
   useBulkDownloadImagesMutation,
 } = imagesApi;
-
-export const useGetImageDTOQuery = (...args: Parameters<typeof imagesApi.useGetImageDTOQuery>) => {
-  return imagesApi.useGetImageDTOQuery(...args);
-};
 
 /**
  * Imperative RTKQ helper to fetch an ImageDTO.
@@ -538,8 +578,30 @@ export const getImageDTO = async (image_name: string, forceRefetch?: boolean): P
   };
   const req = getStore().dispatch(imagesApi.endpoints.getImageDTO.initiate(image_name, options));
   try {
-    return await req.unwrap();
+    const imageDTO = await req.unwrap();
+    req.unsubscribe();
+    return imageDTO;
   } catch {
+    req.unsubscribe();
     return null;
   }
+};
+
+export const uploadImage = async (arg: {
+  blob: Blob;
+  fileName: string;
+  image_category: ImageCategory;
+  is_intermediate: boolean;
+  crop_visible?: boolean;
+  board_id?: BoardId;
+}): Promise<ImageDTO> => {
+  const { blob, fileName, image_category, is_intermediate, crop_visible = false, board_id } = arg;
+
+  const { dispatch } = getStore();
+  const file = new File([blob], fileName, { type: 'image/png' });
+  const req = dispatch(
+    imagesApi.endpoints.uploadImage.initiate({ file, image_category, is_intermediate, crop_visible, board_id })
+  );
+  req.reset();
+  return await req.unwrap();
 };

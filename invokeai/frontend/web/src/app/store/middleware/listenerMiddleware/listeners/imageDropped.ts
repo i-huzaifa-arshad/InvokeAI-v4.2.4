@@ -1,28 +1,22 @@
 import { createAction } from '@reduxjs/toolkit';
 import { logger } from 'app/logging/logger';
 import type { AppStartListening } from 'app/store/middleware/listenerMiddleware';
-import { parseify } from 'common/util/serialize';
-import { setInitialCanvasImage } from 'features/canvas/store/canvasSlice';
+import { selectDefaultControlAdapter } from 'features/controlLayers/hooks/addLayerHooks';
 import {
-  controlAdapterImageChanged,
-  controlAdapterIsEnabledChanged,
-} from 'features/controlAdapters/store/controlAdaptersSlice';
-import {
-  caLayerImageChanged,
-  iiLayerImageChanged,
-  ipaLayerImageChanged,
-  rgLayerIPAdapterImageChanged,
-} from 'features/controlLayers/store/controlLayersSlice';
+  controlLayerAdded,
+  entityRasterized,
+  ipaImageChanged,
+  rasterLayerAdded,
+  rgIPAdapterImageChanged,
+} from 'features/controlLayers/store/canvasSlice';
+import { selectCanvasSlice } from 'features/controlLayers/store/selectors';
+import type { CanvasControlLayerState, CanvasRasterLayerState } from 'features/controlLayers/store/types';
+import { imageDTOToImageObject } from 'features/controlLayers/store/types';
 import type { TypesafeDraggableData, TypesafeDroppableData } from 'features/dnd/types';
 import { isValidDrop } from 'features/dnd/util/isValidDrop';
-import {
-  imageSelected,
-  imageToCompareChanged,
-  isImageViewerOpenChanged,
-  selectionChanged,
-} from 'features/gallery/store/gallerySlice';
+import { imageToCompareChanged, selectionChanged } from 'features/gallery/store/gallerySlice';
 import { fieldImageValueChanged } from 'features/nodes/store/nodesSlice';
-import { selectOptimalDimension } from 'features/parameters/store/generationSlice';
+import { upscaleInitialImageChanged } from 'features/parameters/store/upscaleSlice';
 import { imagesApi } from 'services/api/endpoints/images';
 
 export const dndDropped = createAction<{
@@ -30,11 +24,12 @@ export const dndDropped = createAction<{
   activeData: TypesafeDraggableData;
 }>('dnd/dndDropped');
 
+const log = logger('system');
+
 export const addImageDroppedListener = (startAppListening: AppStartListening) => {
   startAppListening({
     actionCreator: dndDropped,
-    effect: async (action, { dispatch, getState }) => {
-      const log = logger('dnd');
+    effect: (action, { dispatch, getState }) => {
       const { activeData, overData } = action.payload;
       if (!isValidDrop(overData, activeData)) {
         return;
@@ -45,80 +40,22 @@ export const addImageDroppedListener = (startAppListening: AppStartListening) =>
       } else if (activeData.payloadType === 'GALLERY_SELECTION') {
         log.debug({ activeData, overData }, `Images (${getState().gallery.selection.length}) dropped`);
       } else if (activeData.payloadType === 'NODE_FIELD') {
-        log.debug({ activeData: parseify(activeData), overData: parseify(overData) }, 'Node field dropped');
+        log.debug({ activeData, overData }, 'Node field dropped');
       } else {
         log.debug({ activeData, overData }, `Unknown payload dropped`);
-      }
-
-      /**
-       * Image dropped on current image
-       */
-      if (
-        overData.actionType === 'SET_CURRENT_IMAGE' &&
-        activeData.payloadType === 'IMAGE_DTO' &&
-        activeData.payload.imageDTO
-      ) {
-        dispatch(imageSelected(activeData.payload.imageDTO));
-        dispatch(isImageViewerOpenChanged(true));
-        return;
-      }
-
-      /**
-       * Image dropped on ControlNet
-       */
-      if (
-        overData.actionType === 'SET_CONTROL_ADAPTER_IMAGE' &&
-        activeData.payloadType === 'IMAGE_DTO' &&
-        activeData.payload.imageDTO
-      ) {
-        const { id } = overData.context;
-        dispatch(
-          controlAdapterImageChanged({
-            id,
-            controlImage: activeData.payload.imageDTO.image_name,
-          })
-        );
-        dispatch(
-          controlAdapterIsEnabledChanged({
-            id,
-            isEnabled: true,
-          })
-        );
-        return;
-      }
-
-      /**
-       * Image dropped on Control Adapter Layer
-       */
-      if (
-        overData.actionType === 'SET_CA_LAYER_IMAGE' &&
-        activeData.payloadType === 'IMAGE_DTO' &&
-        activeData.payload.imageDTO
-      ) {
-        const { layerId } = overData.context;
-        dispatch(
-          caLayerImageChanged({
-            layerId,
-            imageDTO: activeData.payload.imageDTO,
-          })
-        );
-        return;
       }
 
       /**
        * Image dropped on IP Adapter Layer
        */
       if (
-        overData.actionType === 'SET_IPA_LAYER_IMAGE' &&
+        overData.actionType === 'SET_IPA_IMAGE' &&
         activeData.payloadType === 'IMAGE_DTO' &&
         activeData.payload.imageDTO
       ) {
-        const { layerId } = overData.context;
+        const { id } = overData.context;
         dispatch(
-          ipaLayerImageChanged({
-            layerId,
-            imageDTO: activeData.payload.imageDTO,
-          })
+          ipaImageChanged({ entityIdentifier: { id, type: 'ip_adapter' }, imageDTO: activeData.payload.imageDTO })
         );
         return;
       }
@@ -127,14 +64,14 @@ export const addImageDroppedListener = (startAppListening: AppStartListening) =>
        * Image dropped on RG Layer IP Adapter
        */
       if (
-        overData.actionType === 'SET_RG_LAYER_IP_ADAPTER_IMAGE' &&
+        overData.actionType === 'SET_RG_IP_ADAPTER_IMAGE' &&
         activeData.payloadType === 'IMAGE_DTO' &&
         activeData.payload.imageDTO
       ) {
-        const { layerId, ipAdapterId } = overData.context;
+        const { id, ipAdapterId } = overData.context;
         dispatch(
-          rgLayerIPAdapterImageChanged({
-            layerId,
+          rgIPAdapterImageChanged({
+            entityIdentifier: { id, type: 'regional_guidance' },
             ipAdapterId,
             imageDTO: activeData.payload.imageDTO,
           })
@@ -143,32 +80,53 @@ export const addImageDroppedListener = (startAppListening: AppStartListening) =>
       }
 
       /**
-       * Image dropped on II Layer Image
+       * Image dropped on Raster layer
        */
       if (
-        overData.actionType === 'SET_II_LAYER_IMAGE' &&
+        overData.actionType === 'ADD_RASTER_LAYER_FROM_IMAGE' &&
         activeData.payloadType === 'IMAGE_DTO' &&
         activeData.payload.imageDTO
       ) {
-        const { layerId } = overData.context;
-        dispatch(
-          iiLayerImageChanged({
-            layerId,
-            imageDTO: activeData.payload.imageDTO,
-          })
-        );
+        const imageObject = imageDTOToImageObject(activeData.payload.imageDTO);
+        const { x, y } = selectCanvasSlice(getState()).bbox.rect;
+        const overrides: Partial<CanvasRasterLayerState> = {
+          objects: [imageObject],
+          position: { x, y },
+        };
+        dispatch(rasterLayerAdded({ overrides, isSelected: true }));
         return;
       }
 
       /**
-       * Image dropped on Canvas
+       * Image dropped on Raster layer
        */
       if (
-        overData.actionType === 'SET_CANVAS_INITIAL_IMAGE' &&
+        overData.actionType === 'ADD_CONTROL_LAYER_FROM_IMAGE' &&
         activeData.payloadType === 'IMAGE_DTO' &&
         activeData.payload.imageDTO
       ) {
-        dispatch(setInitialCanvasImage(activeData.payload.imageDTO, selectOptimalDimension(getState())));
+        const state = getState();
+        const imageObject = imageDTOToImageObject(activeData.payload.imageDTO);
+        const { x, y } = selectCanvasSlice(state).bbox.rect;
+        const defaultControlAdapter = selectDefaultControlAdapter(state);
+        const overrides: Partial<CanvasControlLayerState> = {
+          objects: [imageObject],
+          position: { x, y },
+          controlAdapter: defaultControlAdapter,
+        };
+        dispatch(controlLayerAdded({ overrides, isSelected: true }));
+        return;
+      }
+
+      /**
+       * Image dropped on Raster layer
+       */
+      if (overData.actionType === 'REPLACE_LAYER_WITH_IMAGE' && activeData.payloadType === 'IMAGE_DTO') {
+        const state = getState();
+        const { entityIdentifier } = overData.context;
+        const imageObject = imageDTOToImageObject(activeData.payload.imageDTO);
+        const { x, y } = selectCanvasSlice(state).bbox.rect;
+        dispatch(entityRasterized({ entityIdentifier, imageObject, position: { x, y }, replaceObjects: true }));
         return;
       }
 
@@ -201,7 +159,6 @@ export const addImageDroppedListener = (startAppListening: AppStartListening) =>
       ) {
         const { imageDTO } = activeData.payload;
         dispatch(imageToCompareChanged(imageDTO));
-        dispatch(isImageViewerOpenChanged(true));
         return;
       }
 
@@ -240,6 +197,20 @@ export const addImageDroppedListener = (startAppListening: AppStartListening) =>
           })
         );
         dispatch(selectionChanged([]));
+        return;
+      }
+
+      /**
+       * Image dropped on upscale initial image
+       */
+      if (
+        overData.actionType === 'SET_UPSCALE_INITIAL_IMAGE' &&
+        activeData.payloadType === 'IMAGE_DTO' &&
+        activeData.payload.imageDTO
+      ) {
+        const { imageDTO } = activeData.payload;
+
+        dispatch(upscaleInitialImageChanged(imageDTO));
         return;
       }
 

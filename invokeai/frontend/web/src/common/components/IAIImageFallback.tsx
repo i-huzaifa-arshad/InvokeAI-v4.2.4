@@ -33,33 +33,25 @@ type IAINoImageFallbackProps = FlexProps & {
 };
 
 export const IAINoContentFallback = memo((props: IAINoImageFallbackProps) => {
-  const { icon = PiImageBold, boxSize = 16, sx, ...rest } = props;
-
-  const styles = useMemo(
-    () => ({
-      w: 'full',
-      h: 'full',
-      alignItems: 'center',
-      justifyContent: 'center',
-      borderRadius: 'base',
-      flexDir: 'column',
-      gap: 2,
-      userSelect: 'none',
-      opacity: 0.7,
-      color: 'base.500',
-      ...sx,
-    }),
-    [sx]
-  );
+  const { icon = PiImageBold, boxSize = 16, ...rest } = props;
 
   return (
-    <Flex sx={styles} {...rest}>
+    <Flex
+      w="full"
+      h="full"
+      alignItems="center"
+      justifyContent="center"
+      borderRadius="base"
+      flexDir="column"
+      gap={2}
+      userSelect="none"
+      opacity={0.7}
+      color="base.500"
+      fontSize="md"
+      {...rest}
+    >
       {icon && <Icon as={icon} boxSize={boxSize} opacity={0.7} />}
-      {props.label && (
-        <Text textAlign="center" fontSize="md">
-          {props.label}
-        </Text>
-      )}
+      {props.label && <Text textAlign="center">{props.label}</Text>}
     </Flex>
   );
 });

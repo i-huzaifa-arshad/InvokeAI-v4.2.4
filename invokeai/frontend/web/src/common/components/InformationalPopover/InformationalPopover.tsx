@@ -10,9 +10,13 @@ import {
   PopoverContent,
   PopoverTrigger,
   Portal,
+  Spacer,
   Text,
 } from '@invoke-ai/ui-library';
-import { useAppSelector } from 'app/store/storeHooks';
+import { createSelector } from '@reduxjs/toolkit';
+import { useAppDispatch, useAppSelector } from 'app/store/storeHooks';
+import { selectSystemSlice, setShouldEnableInformationalPopovers } from 'features/system/store/systemSlice';
+import { toast } from 'features/toast/toast';
 import { merge, omit } from 'lodash-es';
 import type { ReactElement } from 'react';
 import { memo, useCallback, useMemo } from 'react';
@@ -28,8 +32,13 @@ type Props = {
   children: ReactElement;
 };
 
+const selectShouldEnableInformationalPopovers = createSelector(
+  selectSystemSlice,
+  (system) => system.shouldEnableInformationalPopovers
+);
+
 export const InformationalPopover = memo(({ feature, children, inPortal = true, ...rest }: Props) => {
-  const shouldEnableInformationalPopovers = useAppSelector((s) => s.system.shouldEnableInformationalPopovers);
+  const shouldEnableInformationalPopovers = useAppSelector(selectShouldEnableInformationalPopovers);
 
   const data = useMemo(() => POPOVER_DATA[feature], [feature]);
 
@@ -71,7 +80,7 @@ type ContentProps = {
 
 const Content = ({ data, feature }: ContentProps) => {
   const { t } = useTranslation();
-
+  const dispatch = useAppDispatch();
   const heading = useMemo<string | undefined>(() => t(`popovers.${feature}.heading`), [feature, t]);
 
   const paragraphs = useMemo<string[]>(
@@ -82,16 +91,25 @@ const Content = ({ data, feature }: ContentProps) => {
     [feature, t]
   );
 
-  const handleClick = useCallback(() => {
+  const onClickLearnMore = useCallback(() => {
     if (!data?.href) {
       return;
     }
     window.open(data.href);
   }, [data?.href]);
 
+  const onClickDontShowMeThese = useCallback(() => {
+    dispatch(setShouldEnableInformationalPopovers(false));
+    toast({
+      title: t('settings.informationalPopoversDisabled'),
+      description: t('settings.informationalPopoversDisabledDesc'),
+      status: 'info',
+    });
+  }, [dispatch, t]);
+
   return (
-    <PopoverContent w={96}>
-      <PopoverCloseButton />
+    <PopoverContent maxW={300}>
+      <PopoverCloseButton top={2} />
       <PopoverBody>
         <Flex gap={2} flexDirection="column" alignItems="flex-start">
           {heading && (
@@ -116,20 +134,19 @@ const Content = ({ data, feature }: ContentProps) => {
           {paragraphs.map((p) => (
             <Text key={p}>{p}</Text>
           ))}
-          {data?.href && (
-            <>
-              <Divider />
-              <Button
-                pt={1}
-                onClick={handleClick}
-                leftIcon={<PiArrowSquareOutBold />}
-                alignSelf="flex-end"
-                variant="link"
-              >
+
+          <Divider />
+          <Flex alignItems="center" justifyContent="space-between" w="full">
+            <Button onClick={onClickDontShowMeThese} variant="link" size="sm">
+              {t('common.dontShowMeThese')}
+            </Button>
+            <Spacer />
+            {data?.href && (
+              <Button onClick={onClickLearnMore} leftIcon={<PiArrowSquareOutBold />} variant="link" size="sm">
                 {t('common.learnMore') ?? heading}
               </Button>
-            </>
-          )}
+            )}
+          </Flex>
         </Flex>
       </PopoverBody>
     </PopoverContent>

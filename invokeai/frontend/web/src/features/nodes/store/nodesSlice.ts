@@ -1,16 +1,19 @@
 import type { PayloadAction, UnknownAction } from '@reduxjs/toolkit';
 import { createSlice, isAnyOf } from '@reduxjs/toolkit';
-import type { PersistConfig, RootState } from 'app/store/store';
+import type { PersistConfig } from 'app/store/store';
+import { buildUseBoolean } from 'common/hooks/useBoolean';
 import { workflowLoaded } from 'features/nodes/store/actions';
 import { SHARED_NODE_PROPERTIES } from 'features/nodes/types/constants';
 import type {
   BoardFieldValue,
   BooleanFieldValue,
+  CLIPEmbedModelFieldValue,
   ColorFieldValue,
   ControlNetModelFieldValue,
   EnumFieldValue,
   FieldValue,
   FloatFieldValue,
+  FluxVAEModelFieldValue,
   ImageFieldValue,
   IntegerFieldValue,
   IPAdapterModelFieldValue,
@@ -23,15 +26,18 @@ import type {
   StatefulFieldValue,
   StringFieldValue,
   T2IAdapterModelFieldValue,
+  T5EncoderModelFieldValue,
   VAEModelFieldValue,
 } from 'features/nodes/types/field';
 import {
   zBoardFieldValue,
   zBooleanFieldValue,
+  zCLIPEmbedModelFieldValue,
   zColorFieldValue,
   zControlNetModelFieldValue,
   zEnumFieldValue,
   zFloatFieldValue,
+  zFluxVAEModelFieldValue,
   zImageFieldValue,
   zIntegerFieldValue,
   zIPAdapterModelFieldValue,
@@ -44,11 +50,12 @@ import {
   zStatefulFieldValue,
   zStringFieldValue,
   zT2IAdapterModelFieldValue,
+  zT5EncoderModelFieldValue,
   zVAEModelFieldValue,
 } from 'features/nodes/types/field';
 import type { AnyNode, InvocationNodeEdge } from 'features/nodes/types/invocation';
 import { isInvocationNode, isNotesNode } from 'features/nodes/types/invocation';
-import { atom } from 'nanostores';
+import { atom, computed } from 'nanostores';
 import type { MouseEvent } from 'react';
 import type { Edge, EdgeChange, NodeChange, Viewport, XYPosition } from 'reactflow';
 import { applyEdgeChanges, applyNodeChanges, getConnectedEdges, getIncomers, getOutgoers } from 'reactflow';
@@ -341,6 +348,15 @@ export const nodesSlice = createSlice({
     ) => {
       fieldValueReducer(state, action, zSpandrelImageToImageModelFieldValue);
     },
+    fieldT5EncoderValueChanged: (state, action: FieldValueAction<T5EncoderModelFieldValue>) => {
+      fieldValueReducer(state, action, zT5EncoderModelFieldValue);
+    },
+    fieldCLIPEmbedValueChanged: (state, action: FieldValueAction<CLIPEmbedModelFieldValue>) => {
+      fieldValueReducer(state, action, zCLIPEmbedModelFieldValue);
+    },
+    fieldFluxVAEModelValueChanged: (state, action: FieldValueAction<FluxVAEModelFieldValue>) => {
+      fieldValueReducer(state, action, zFluxVAEModelFieldValue);
+    },
     fieldEnumModelValueChanged: (state, action: FieldValueAction<EnumFieldValue>) => {
       fieldValueReducer(state, action, zEnumFieldValue);
     },
@@ -402,6 +418,9 @@ export const {
   fieldSchedulerValueChanged,
   fieldStringValueChanged,
   fieldVaeModelValueChanged,
+  fieldT5EncoderValueChanged,
+  fieldCLIPEmbedValueChanged,
+  fieldFluxVAEModelValueChanged,
   nodeEditorReset,
   nodeIsIntermediateChanged,
   nodeIsOpenChanged,
@@ -416,6 +435,7 @@ export const {
 
 export const $cursorPos = atom<XYPosition | null>(null);
 export const $templates = atom<Templates>({});
+export const $hasTemplates = computed($templates, (templates) => Object.keys(templates).length > 0);
 export const $copiedNodes = atom<AnyNode[]>([]);
 export const $copiedEdges = atom<InvocationNodeEdge[]>([]);
 export const $edgesToCopiedNodes = atom<InvocationNodeEdge[]>([]);
@@ -425,16 +445,7 @@ export const $didUpdateEdge = atom(false);
 export const $lastEdgeUpdateMouseEvent = atom<MouseEvent | null>(null);
 
 export const $viewport = atom<Viewport>({ x: 0, y: 0, zoom: 1 });
-export const $isAddNodePopoverOpen = atom(false);
-export const closeAddNodePopover = () => {
-  $isAddNodePopoverOpen.set(false);
-  $pendingConnection.set(null);
-};
-export const openAddNodePopover = () => {
-  $isAddNodePopoverOpen.set(true);
-};
-
-export const selectNodesSlice = (state: RootState) => state.nodes.present;
+export const [useAddNodeCmdk, $addNodeCmdk] = buildUseBoolean(false);
 
 /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 const migrateNodesState = (state: any): any => {
@@ -514,6 +525,9 @@ export const isAnyNodeOrEdgeMutation = isAnyOf(
   fieldSchedulerValueChanged,
   fieldStringValueChanged,
   fieldVaeModelValueChanged,
+  fieldT5EncoderValueChanged,
+  fieldCLIPEmbedValueChanged,
+  fieldFluxVAEModelValueChanged,
   nodesChanged,
   nodeIsIntermediateChanged,
   nodeIsOpenChanged,

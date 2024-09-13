@@ -1,16 +1,16 @@
 import { Flex, IconButton, Input, InputGroup, InputRightElement, Spacer } from '@invoke-ai/ui-library';
 import { useAppDispatch, useAppSelector } from 'app/store/storeHooks';
-import { setSearchTerm } from 'features/modelManagerV2/store/modelManagerV2Slice';
+import { selectSearchTerm, setSearchTerm } from 'features/modelManagerV2/store/modelManagerV2Slice';
 import { t } from 'i18next';
 import type { ChangeEventHandler } from 'react';
-import { useCallback } from 'react';
+import { memo, useCallback } from 'react';
 import { PiXBold } from 'react-icons/pi';
 
 import { ModelTypeFilter } from './ModelTypeFilter';
 
-export const ModelListNavigation = () => {
+export const ModelListNavigation = memo(() => {
   const dispatch = useAppDispatch();
-  const searchTerm = useAppSelector((s) => s.modelmanagerV2.searchTerm);
+  const searchTerm = useAppSelector(selectSearchTerm);
 
   const handleSearch: ChangeEventHandler<HTMLInputElement> = useCallback(
     (event) => {
@@ -49,4 +49,6 @@ export const ModelListNavigation = () => {
       </InputGroup>
     </Flex>
   );
-};
+});
+
+ModelListNavigation.displayName = 'ModelListNavigation';

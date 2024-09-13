@@ -40,6 +40,7 @@ const tagTypes = [
   'SDXLRefinerModel',
   'Workflow',
   'WorkflowsRecent',
+  'StylePreset',
   'Schema',
   // This is invalidated on reconnect. It should be used for queries that have changing data,
   // especially related to the queue and generation.
@@ -48,11 +49,7 @@ const tagTypes = [
 export type ApiTagDescription = TagDescription<(typeof tagTypes)[number]>;
 export const LIST_TAG = 'LIST';
 
-const dynamicBaseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> = async (
-  args,
-  api,
-  extraOptions
-) => {
+const dynamicBaseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> = (args, api, extraOptions) => {
   const baseUrl = $baseUrl.get();
   const authToken = $authToken.get();
   const projectId = $projectId.get();

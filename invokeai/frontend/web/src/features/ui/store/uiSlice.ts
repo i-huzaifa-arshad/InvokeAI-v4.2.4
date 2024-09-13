@@ -1,17 +1,16 @@
 import type { PayloadAction } from '@reduxjs/toolkit';
-import { createSlice } from '@reduxjs/toolkit';
+import { createSelector, createSlice } from '@reduxjs/toolkit';
 import type { PersistConfig, RootState } from 'app/store/store';
 import { workflowLoadRequested } from 'features/nodes/store/actions';
+import { atom } from 'nanostores';
 
-import type { InvokeTabName } from './tabMap';
-import type { UIState } from './uiTypes';
+import type { TabName, UIState } from './uiTypes';
 
 const initialUIState: UIState = {
   _version: 2,
   activeTab: 'generation',
   shouldShowImageDetails: false,
   shouldShowProgressInViewer: true,
-  panels: {},
   accordions: {},
   expanders: {},
 };
@@ -20,7 +19,7 @@ export const uiSlice = createSlice({
   name: 'ui',
   initialState: initialUIState,
   reducers: {
-    setActiveTab: (state, action: PayloadAction<InvokeTabName>) => {
+    setActiveTab: (state, action: PayloadAction<TabName>) => {
       state.activeTab = action.payload;
     },
     setShouldShowImageDetails: (state, action: PayloadAction<boolean>) => {
@@ -28,9 +27,6 @@ export const uiSlice = createSlice({
     },
     setShouldShowProgressInViewer: (state, action: PayloadAction<boolean>) => {
       state.shouldShowProgressInViewer = action.payload;
-    },
-    panelsChanged: (state, action: PayloadAction<{ name: string; value: string }>) => {
-      state.panels[action.payload.name] = action.payload.value;
     },
     accordionStateChanged: (state, action: PayloadAction<{ id: string; isOpen: boolean }>) => {
       const { id, isOpen } = action.payload;
@@ -52,7 +48,6 @@ export const {
   setActiveTab,
   setShouldShowImageDetails,
   setShouldShowProgressInViewer,
-  panelsChanged,
   accordionStateChanged,
   expanderStateChanged,
 } = uiSlice.actions;
@@ -77,3 +72,15 @@ export const uiPersistConfig: PersistConfig<UIState> = {
   migrate: migrateUIState,
   persistDenylist: ['shouldShowImageDetails'],
 };
+
+export const LEFT_PANEL_MIN_SIZE_PX = 400;
+export const LEFT_PANEL_MIN_SIZE_PCT = 20;
+const TABS_WITH_LEFT_PANEL: TabName[] = ['generation', 'upscaling', 'workflows'] as const;
+export const $isLeftPanelOpen = atom(true);
+export const selectWithLeftPanel = createSelector(selectUiSlice, (ui) => TABS_WITH_LEFT_PANEL.includes(ui.activeTab));
+
+const TABS_WITH_RIGHT_PANEL: TabName[] = ['generation', 'upscaling', 'workflows'] as const;
+export const RIGHT_PANEL_MIN_SIZE_PX = 390;
+export const RIGHT_PANEL_MIN_SIZE_PCT = 20;
+export const $isRightPanelOpen = atom(true);
+export const selectWithRightPanel = createSelector(selectUiSlice, (ui) => TABS_WITH_RIGHT_PANEL.includes(ui.activeTab));

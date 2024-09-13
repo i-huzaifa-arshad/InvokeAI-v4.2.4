@@ -9,10 +9,13 @@ from typing import Optional
 import torch
 from diffusers.pipelines.pipeline_utils import DiffusionPipeline
 from diffusers.schedulers.scheduling_utils import SchedulerMixin
-from transformers import CLIPTokenizer
+from transformers import CLIPTokenizer, T5Tokenizer, T5TokenizerFast
 
+from invokeai.backend.image_util.depth_anything.depth_anything_pipeline import DepthAnythingPipeline
+from invokeai.backend.image_util.grounding_dino.grounding_dino_pipeline import GroundingDinoPipeline
+from invokeai.backend.image_util.segment_anything.segment_anything_pipeline import SegmentAnythingPipeline
 from invokeai.backend.ip_adapter.ip_adapter import IPAdapter
-from invokeai.backend.lora import LoRAModelRaw
+from invokeai.backend.lora.lora_model_raw import LoRAModelRaw
 from invokeai.backend.model_manager.config import AnyModel
 from invokeai.backend.onnx.onnx_runtime import IAIOnnxRuntimeModel
 from invokeai.backend.spandrel_image_to_image_model import SpandrelImageToImageModel
@@ -34,8 +37,30 @@ def calc_model_size_by_data(logger: logging.Logger, model: AnyModel) -> int:
     elif isinstance(model, CLIPTokenizer):
         # TODO(ryand): Accurately calculate the tokenizer's size. It's small enough that it shouldn't matter for now.
         return 0
-    elif isinstance(model, (TextualInversionModelRaw, IPAdapter, LoRAModelRaw, SpandrelImageToImageModel)):
+    elif isinstance(
+        model,
+        (
+            TextualInversionModelRaw,
+            IPAdapter,
+            LoRAModelRaw,
+            SpandrelImageToImageModel,
+            GroundingDinoPipeline,
+            SegmentAnythingPipeline,
+            DepthAnythingPipeline,
+        ),
+    ):
         return model.calc_size()
+    elif isinstance(
+        model,
+        (
+            T5TokenizerFast,
+            T5Tokenizer,
+        ),
+    ):
+        # HACK(ryand): len(model) just returns the vocabulary size, so this is blatantly wrong. It should be small
+        # relative to the text encoder that it's used with, so shouldn't matter too much, but we should fix this at some
+        # point.
+        return len(model)
     else:
         # TODO(ryand): Promote this from a log to an exception once we are confident that we are handling all of the
         # supported model types.

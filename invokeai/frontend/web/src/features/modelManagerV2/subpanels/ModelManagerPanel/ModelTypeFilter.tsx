@@ -1,13 +1,13 @@
 import { Button, Menu, MenuButton, MenuItem, MenuList } from '@invoke-ai/ui-library';
 import { useAppDispatch, useAppSelector } from 'app/store/storeHooks';
 import type { FilterableModelType } from 'features/modelManagerV2/store/modelManagerV2Slice';
-import { setFilteredModelType } from 'features/modelManagerV2/store/modelManagerV2Slice';
-import { useCallback, useMemo } from 'react';
+import { selectFilteredModelType, setFilteredModelType } from 'features/modelManagerV2/store/modelManagerV2Slice';
+import { memo, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PiFunnelBold } from 'react-icons/pi';
 import { objectKeys } from 'tsafe';
 
-export const ModelTypeFilter = () => {
+export const ModelTypeFilter = memo(() => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const MODEL_TYPE_LABELS: Record<FilterableModelType, string> = useMemo(
@@ -19,13 +19,14 @@ export const ModelTypeFilter = () => {
       controlnet: 'ControlNet',
       vae: 'VAE',
       t2i_adapter: t('common.t2iAdapter'),
+      t5_encoder: t('modelManager.t5Encoder'),
+      clip_embed: t('modelManager.clipEmbed'),
       ip_adapter: t('common.ipAdapter'),
-      clip_vision: 'Clip Vision',
-      spandrel_image_to_image: 'Image-to-Image',
+      spandrel_image_to_image: t('modelManager.spandrelImageToImage'),
     }),
     [t]
   );
-  const filteredModelType = useAppSelector((s) => s.modelmanagerV2.filteredModelType);
+  const filteredModelType = useAppSelector(selectFilteredModelType);
 
   const selectModelType = useCallback(
     (option: FilterableModelType) => {
@@ -57,4 +58,6 @@ export const ModelTypeFilter = () => {
       </MenuList>
     </Menu>
   );
-};
+});
+
+ModelTypeFilter.displayName = 'ModelTypeFilter';

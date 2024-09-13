@@ -19,6 +19,7 @@ import type { PartialAppConfig } from 'app/types/invokeai';
 import Loading from 'common/components/Loading/Loading';
 import AppDndContext from 'features/dnd/components/AppDndContext';
 import type { WorkflowCategory } from 'features/nodes/types/workflow';
+import type { TabName } from 'features/ui/store/uiTypes';
 import type { PropsWithChildren, ReactNode } from 'react';
 import React, { lazy, memo, useEffect, useMemo } from 'react';
 import { Provider } from 'react-redux';
@@ -43,6 +44,9 @@ interface Props extends PropsWithChildren {
     imageName: string;
     action: 'sendToImg2Img' | 'sendToCanvas' | 'useAllParameters';
   };
+  selectedWorkflowId?: string;
+  selectedStylePresetId?: string;
+  destination?: TabName;
   customStarUi?: CustomStarUi;
   socketOptions?: Partial<ManagerOptions & SocketOptions>;
   isDebugging?: boolean;
@@ -62,6 +66,9 @@ const InvokeAIUI = ({
   projectUrl,
   queueId,
   selectedImage,
+  selectedWorkflowId,
+  selectedStylePresetId,
+  destination,
   customStarUi,
   socketOptions,
   isDebugging = false,
@@ -218,7 +225,13 @@ const InvokeAIUI = ({
         <React.Suspense fallback={<Loading />}>
           <ThemeLocaleProvider>
             <AppDndContext>
-              <App config={config} selectedImage={selectedImage} />
+              <App
+                config={config}
+                selectedImage={selectedImage}
+                selectedWorkflowId={selectedWorkflowId}
+                selectedStylePresetId={selectedStylePresetId}
+                destination={destination}
+              />
             </AppDndContext>
           </ThemeLocaleProvider>
         </React.Suspense>

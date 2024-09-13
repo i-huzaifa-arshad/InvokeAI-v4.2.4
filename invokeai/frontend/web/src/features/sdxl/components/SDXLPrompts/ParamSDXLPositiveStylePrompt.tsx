@@ -1,6 +1,7 @@
 import { Box, Textarea } from '@invoke-ai/ui-library';
 import { useAppDispatch, useAppSelector } from 'app/store/storeHooks';
-import { positivePrompt2Changed } from 'features/controlLayers/store/controlLayersSlice';
+import { positivePrompt2Changed, selectPositivePrompt2 } from 'features/controlLayers/store/paramsSlice';
+import { PromptLabel } from 'features/parameters/components/Prompts/PromptLabel';
 import { PromptOverlayButtonWrapper } from 'features/parameters/components/Prompts/PromptOverlayButtonWrapper';
 import { AddPromptTriggerButton } from 'features/prompt/AddPromptTriggerButton';
 import { PromptPopover } from 'features/prompt/PromptPopover';
@@ -10,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 
 export const ParamSDXLPositiveStylePrompt = memo(() => {
   const dispatch = useAppDispatch();
-  const prompt = useAppSelector((s) => s.controlLayers.present.positivePrompt2);
+  const prompt = useAppSelector(selectPositivePrompt2);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { t } = useTranslation();
   const handleChange = useCallback(
@@ -33,16 +34,21 @@ export const ParamSDXLPositiveStylePrompt = memo(() => {
           name="prompt"
           ref={textareaRef}
           value={prompt}
-          placeholder={t('sdxl.posStylePrompt')}
           onChange={onChange}
           onKeyDown={onKeyDown}
           fontSize="sm"
           variant="darkFilled"
-          paddingRight={30}
+          minH={24}
+          borderTopWidth={24} // This prevents the prompt from being hidden behind the header
+          paddingInlineEnd={10}
+          paddingInlineStart={3}
+          paddingTop={0}
+          paddingBottom={3}
         />
         <PromptOverlayButtonWrapper>
           <AddPromptTriggerButton isOpen={isOpen} onOpen={onOpen} />
         </PromptOverlayButtonWrapper>
+        <PromptLabel label={t('sdxl.posStylePrompt')} />
       </Box>
     </PromptPopover>
   );

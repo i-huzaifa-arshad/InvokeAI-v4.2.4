@@ -1,6 +1,6 @@
-import type { CONTROLNET_PROCESSORS } from 'features/controlAdapters/store/constants';
+import type { FilterType } from 'features/controlLayers/store/filters';
 import type { ParameterPrecision, ParameterScheduler } from 'features/parameters/types/parameterSchemas';
-import type { InvokeTabName } from 'features/ui/store/tabMap';
+import type { TabName } from 'features/ui/store/uiTypes';
 import type { O } from 'ts-toolbelt';
 
 /**
@@ -65,21 +65,25 @@ export type AppConfig = {
    */
   shouldUpdateImagesOnConnect: boolean;
   shouldFetchMetadataFromApi: boolean;
+  /**
+   * Sets a size limit for outputs on the upscaling tab. This is a maximum dimension, so the actual max number of pixels
+   * will be the square of this value.
+   */
+  maxUpscaleDimension?: number;
   allowPrivateBoards: boolean;
-  disabledTabs: InvokeTabName[];
+  allowPrivateStylePresets: boolean;
+  disabledTabs: TabName[];
   disabledFeatures: AppFeature[];
   disabledSDFeatures: SDFeature[];
-  canRestoreDeletedImagesFromBin: boolean;
   nodesAllowlist: string[] | undefined;
   nodesDenylist: string[] | undefined;
-  maxUpscalePixels?: number;
   metadataFetchDebounce?: number;
   workflowFetchDebounce?: number;
   isLocal?: boolean;
   sd: {
     defaultModel?: string;
     disabledControlNetModels: string[];
-    disabledControlNetProcessors: (keyof typeof CONTROLNET_PROCESSORS)[];
+    disabledControlNetProcessors: FilterType[];
     // Core parameters
     iterations: NumericalParameterConfig;
     width: NumericalParameterConfig; // initial value comes from model

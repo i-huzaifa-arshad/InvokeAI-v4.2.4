@@ -1,13 +1,13 @@
 import { Button, Flex, FormControl, FormErrorMessage, FormHelperText, FormLabel, Input } from '@invoke-ai/ui-library';
 import { useInstallModel } from 'features/modelManagerV2/hooks/useInstallModel';
 import type { ChangeEventHandler } from 'react';
-import { useCallback, useState } from 'react';
+import { memo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLazyGetHuggingFaceModelsQuery } from 'services/api/endpoints/models';
 
 import { HuggingFaceResults } from './HuggingFaceResults';
 
-export const HuggingFaceForm = () => {
+export const HuggingFaceForm = memo(() => {
   const [huggingFaceRepo, setHuggingFaceRepo] = useState('');
   const [displayResults, setDisplayResults] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -16,7 +16,7 @@ export const HuggingFaceForm = () => {
   const [_getHuggingFaceModels, { isLoading, data }] = useLazyGetHuggingFaceModelsQuery();
   const [installModel] = useInstallModel();
 
-  const getModels = useCallback(async () => {
+  const getModels = useCallback(() => {
     _getHuggingFaceModels(huggingFaceRepo)
       .unwrap()
       .then((response) => {
@@ -66,4 +66,6 @@ export const HuggingFaceForm = () => {
       {data && data.urls && displayResults && <HuggingFaceResults results={data.urls} />}
     </Flex>
   );
-};
+});
+
+HuggingFaceForm.displayName = 'HuggingFaceForm';

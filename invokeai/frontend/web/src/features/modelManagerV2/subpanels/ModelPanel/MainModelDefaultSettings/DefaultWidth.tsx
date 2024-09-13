@@ -2,7 +2,8 @@ import { CompositeNumberInput, CompositeSlider, Flex, FormControl, FormLabel } f
 import { useAppSelector } from 'app/store/storeHooks';
 import { InformationalPopover } from 'common/components/InformationalPopover/InformationalPopover';
 import { SettingToggle } from 'features/modelManagerV2/subpanels/ModelPanel/SettingToggle';
-import { useCallback, useMemo } from 'react';
+import { selectWidthConfig } from 'features/system/store/configSlice';
+import { memo, useCallback, useMemo } from 'react';
 import type { UseControllerProps } from 'react-hook-form';
 import { useController } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -16,16 +17,14 @@ type Props = {
   optimalDimension: number;
 };
 
-export function DefaultWidth({ control, optimalDimension }: Props) {
+export const DefaultWidth = memo(({ control, optimalDimension }: Props) => {
   const { field } = useController({ control, name: 'width' });
-  const sliderMin = useAppSelector((s) => s.config.sd.width.sliderMin);
-  const sliderMax = useAppSelector((s) => s.config.sd.width.sliderMax);
-  const numberInputMin = useAppSelector((s) => s.config.sd.width.numberInputMin);
-  const numberInputMax = useAppSelector((s) => s.config.sd.width.numberInputMax);
-  const coarseStep = useAppSelector((s) => s.config.sd.width.coarseStep);
-  const fineStep = useAppSelector((s) => s.config.sd.width.fineStep);
+  const config = useAppSelector(selectWidthConfig);
   const { t } = useTranslation();
-  const marks = useMemo(() => [sliderMin, optimalDimension, sliderMax], [sliderMin, optimalDimension, sliderMax]);
+  const marks = useMemo(
+    () => [config.sliderMin, optimalDimension, config.sliderMax],
+    [config.sliderMin, optimalDimension, config.sliderMax]
+  );
 
   const onChange = useCallback(
     (v: number) => {
@@ -58,24 +57,26 @@ export function DefaultWidth({ control, optimalDimension }: Props) {
       <Flex w="full" gap={4}>
         <CompositeSlider
           value={value}
-          min={sliderMin}
-          max={sliderMax}
-          step={coarseStep}
-          fineStep={fineStep}
+          min={config.sliderMin}
+          max={config.sliderMax}
+          step={config.coarseStep}
+          fineStep={config.fineStep}
           onChange={onChange}
           marks={marks}
           isDisabled={isDisabled}
         />
         <CompositeNumberInput
           value={value}
-          min={numberInputMin}
-          max={numberInputMax}
-          step={coarseStep}
-          fineStep={fineStep}
+          min={config.numberInputMin}
+          max={config.numberInputMax}
+          step={config.coarseStep}
+          fineStep={config.fineStep}
           onChange={onChange}
           isDisabled={isDisabled}
         />
       </Flex>
     </FormControl>
   );
-}
+});
+
+DefaultWidth.displayName = 'DefaultWidth';

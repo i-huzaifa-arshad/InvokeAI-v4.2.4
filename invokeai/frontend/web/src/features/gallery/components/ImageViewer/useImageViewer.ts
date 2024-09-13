@@ -1,31 +1,14 @@
-import { useAppDispatch, useAppSelector } from 'app/store/storeHooks';
-import { imageToCompareChanged, isImageViewerOpenChanged } from 'features/gallery/store/gallerySlice';
-import { useCallback } from 'react';
+import { buildUseBoolean } from 'common/hooks/useBoolean';
+import { useMemo } from 'react';
+
+const [useImageViewerState, $imageViewerState] = buildUseBoolean(true);
 
 export const useImageViewer = () => {
-  const dispatch = useAppDispatch();
-  const isComparing = useAppSelector((s) => s.gallery.imageToCompare !== null);
-  const isOpen = useAppSelector((s) => s.gallery.isImageViewerOpen);
+  const imageViewerState = useImageViewerState();
+  const isOpen = useMemo(() => imageViewerState.isTrue, [imageViewerState]);
+  const open = useMemo(() => imageViewerState.setTrue, [imageViewerState]);
+  const close = useMemo(() => imageViewerState.setFalse, [imageViewerState]);
+  const toggle = useMemo(() => imageViewerState.toggle, [imageViewerState]);
 
-  const onClose = useCallback(() => {
-    if (isComparing && isOpen) {
-      dispatch(imageToCompareChanged(null));
-    } else {
-      dispatch(isImageViewerOpenChanged(false));
-    }
-  }, [dispatch, isComparing, isOpen]);
-
-  const onOpen = useCallback(() => {
-    dispatch(isImageViewerOpenChanged(true));
-  }, [dispatch]);
-
-  const onToggle = useCallback(() => {
-    if (isComparing && isOpen) {
-      dispatch(imageToCompareChanged(null));
-    } else {
-      dispatch(isImageViewerOpenChanged(!isOpen));
-    }
-  }, [dispatch, isComparing, isOpen]);
-
-  return { isOpen, onOpen, onClose, onToggle, isComparing };
+  return { isOpen, open, close, toggle, $state: $imageViewerState };
 };

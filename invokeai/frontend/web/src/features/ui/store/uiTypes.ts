@@ -1,4 +1,4 @@
-import type { InvokeTabName } from './tabMap';
+export type TabName = 'generation' | 'upscaling' | 'workflows' | 'models' | 'queue';
 
 export interface UIState {
   /**
@@ -8,7 +8,7 @@ export interface UIState {
   /**
    * The currently active tab.
    */
-  activeTab: InvokeTabName;
+  activeTab: TabName;
   /**
    * Whether or not to show image details, e.g. metadata, workflow, etc.
    */
@@ -17,10 +17,6 @@ export interface UIState {
    * Whether or not to show progress in the viewer.
    */
   shouldShowProgressInViewer: boolean;
-  /**
-   * The react-resizable-panels state. The shape is managed by react-resizable-panels.
-   */
-  panels: Record<string, string>;
   /**
    * The state of accordions. The key is the id of the accordion, and the value is a boolean representing the open state.
    */
